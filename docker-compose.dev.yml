@@ -18,6 +18,7 @@ services:
     volumes:
       - ./next-app/src:/app/src
       - ./next-app/public:/app/public
+      - ./next-app/dhcp:/app/dhcp
     restart: always
     ports:
       - 3000:3000
