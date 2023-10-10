@@ -29,7 +29,7 @@ type StaticClient = {
 }
 
 
-function lineSplittedSpaceEnd(line: string){
+function lineEndSplittedSpace(line: string){
     return line.split(' ').slice(-1)[0]
 }
 
@@ -78,7 +78,10 @@ function dynamicClientList(network_address: string, netmask: string){
         const acceptIpNetwork = acceptIp >>> (32 - cidr)
         return remoteIpNetwork === acceptIpNetwork
     }
-    const datetime = (str: string) => str.split(' ').slice(-2).join(' ')
+    // new Date()がGMTなので、「2023-01-01T00:00:00.000Z」表記にする
+    // リース終了時間が、未来の時間になっているか検証するため
+    const datetime = (str: string) => str.split(' ').slice(-2).join('T').replace(/\//g, '-') + 'Z'
+    const now = new Date()
 
     const leases = fs.readFileSync(`${process.env.NEXT_PUBLIC_API_LEASE_FILE_PATH}`, 'utf-8')
     const clientList = leases.split('\nlease ')
@@ -97,39 +100,47 @@ function dynamicClientList(network_address: string, netmask: string){
             end: '',
         }
         let inRange = false
+        let isActive = false
 
         for(let j = 0; j < linesLength; j += 1){
             const line = clientLines[j].trim().replace(';', '')
             if(j === 0){
                 const ipAddress = line.replace('{', '').trim()
                 inRange = verifyInRange(ip2long(network_address), ip2long(ipAddress), subnetmask2cidr(netmask))
-                console.log(ipAddress, inRange)
                 if(!inRange){
                     break
                 }
                 client.ip_address = ipAddress
             }else if(inRange){
                 if(/starts/.test(line)){
-                    client.start = datetime(line)
+                    client.start = new Date(datetime(line)).toLocaleString(process.env.NEXT_PUBLIC_API_LOCALE, {'timeZone': process.env.TZ})
                     continue
                 }
                 if(/ends/.test(line)){
-                    client.end = datetime(line)
+                    // dhcpd.leasesファイルには、リース終了したものも残っているようなので
+                    // リース終了時間が未来かどうかでアクティブか判定する
+                    const end = new Date(datetime(line))
+                    if(now.getTime() < end.getTime()){
+                        client.end = new Date(end).toLocaleString(process.env.NEXT_PUBLIC_API_LOCALE, {'timeZone': process.env.TZ})
+                        isActive = true
+                    }else{
+                        break
+                    }
                     continue
                 }
                 if(/hardware ethernet/.test(line)){
-                    client.mac_address = lineSplittedSpaceEnd(line)
+                    client.mac_address = lineEndSplittedSpace(line)
                     client.vendor = macAddressToVendor(client.mac_address)
                     continue
                 }
                 if(/client-hostname/.test(line)){
-                    client.hostname = lineSplittedSpaceEnd(line).replace(/"/g, '')
+                    client.hostname = lineEndSplittedSpace(line).replace(/"/g, '')
                     continue
                 }
             }
         }
 
-        if(inRange){
+        if(inRange && isActive){
             dynamicClient.push(client)
         }
     }
@@ -167,24 +178,24 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
             if(/netmask/.test(line)){
                 const networkAddress = line.split(' ')[0]
                 client.network_address = networkAddress
-                client.netmask = lineSplittedSpaceEnd(line).replace('{', '')
+                client.netmask = lineEndSplittedSpace(line).replace('{', '')
                 client.dynamic = dynamicClientList(client.network_address, client.netmask)
                 continue
             }
 
             if(/host/.test(line)){
-                staticClient.hostname = lineSplittedSpaceEnd(line).replace('{', '')
+                staticClient.hostname = lineEndSplittedSpace(line).replace('{', '')
                 continue
             }
 
             if(/hardware ethernet/.test(line)){
-                staticClient.mac_address = lineSplittedSpaceEnd(line)
+                staticClient.mac_address = lineEndSplittedSpace(line)
                 staticClient.vendor = macAddressToVendor(staticClient.mac_address)
                 continue
             }
 
             if(/fixed-address/.test(line)){
-                staticClient.ip_address = lineSplittedSpaceEnd(line)
+                staticClient.ip_address = lineEndSplittedSpace(line)
                 continue
             }
 
