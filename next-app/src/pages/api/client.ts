@@ -1,14 +1,14 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
+import { execSync } from 'child_process'
 import fs from 'fs'
 import path from 'path'
-import { execSync } from 'child_process'
+import type { NextApiRequest, NextApiResponse } from 'next'
 
 
 type Client = {
-    network_address: string
-    netmask: string
-    static: StaticClient[]
-    dynamic: DynamicClient[]
+    network_address: string;
+    netmask: string;
+    static: StaticClient[];
+    dynamic: DynamicClient[];
 }
 
 type DynamicClient = {
@@ -28,6 +28,10 @@ type StaticClient = {
     start: string;
 }
 
+
+function lineSplittedSpaceEnd(line: string){
+    return line.split(' ').slice(-1)[0]
+}
 
 function macAddressToVendor(macAddress: string){
     const oui = macAddress.split(':').slice(0, 3).join('').toUpperCase()
@@ -59,9 +63,8 @@ function staticLeaseStartTime(ipAddress: string, macAddress: string){
     const leaseDateObject = new Date(outputSplitted.join(' '))
 
     // RSYSLOG_TraditionalFileFormatの場合は、年が取れない(2001年になる)ので「月日 時間」にしておく
-    const leaseDate = (locale: string) => {
-        return (leaseDateObject.getFullYear() === 2001)? leaseDateObject.toLocaleString(locale).replace('2001/', ''): leaseDateObject.toLocaleString(locale)
-    }
+    const leaseDate = (locale: string) => (leaseDateObject.getFullYear() === 2001)? leaseDateObject.toLocaleString(locale).replace('2001/', ''): leaseDateObject.toLocaleString(locale)
+
     return (Number.isNaN(leaseDateObject.getTime()))? '': leaseDate(process.env.NEXT_PUBLIC_API_LOCALE ?? '')
 }
 
@@ -80,9 +83,9 @@ function dynamicClientList(network_address: string, netmask: string){
     const leases = fs.readFileSync(`${process.env.NEXT_PUBLIC_API_LEASE_FILE_PATH}`, 'utf-8')
     const clientList = leases.split('\nlease ')
     const leaseCount = clientList.length
-    let dynamicClient: DynamicClient[] = []
+    const dynamicClient: DynamicClient[] = []
 
-    for(let i = 1; i < leaseCount; i++){
+    for(let i = 1; i < leaseCount; i += 1){
         const clientLines = clientList[i].split('\n')
         const linesLength = clientLines.length
         const client: DynamicClient = {
@@ -95,31 +98,32 @@ function dynamicClientList(network_address: string, netmask: string){
         }
         let inRange = false
 
-        for(let j = 0; j < linesLength; j++){
+        for(let j = 0; j < linesLength; j += 1){
             const line = clientLines[j].trim().replace(';', '')
             if(j === 0){
                 const ipAddress = line.replace('{', '').trim()
                 inRange = verifyInRange(ip2long(network_address), ip2long(ipAddress), subnetmask2cidr(netmask))
+                console.log(ipAddress, inRange)
                 if(!inRange){
                     break
                 }
-                client['ip_address'] = ipAddress
+                client.ip_address = ipAddress
             }else if(inRange){
                 if(/starts/.test(line)){
-                    client['start'] = datetime(line)
+                    client.start = datetime(line)
                     continue
                 }
                 if(/ends/.test(line)){
-                    client['end'] = datetime(line)
+                    client.end = datetime(line)
                     continue
                 }
                 if(/hardware ethernet/.test(line)){
-                    client['mac_address'] = line.split(' ').slice(-1)[0]
-                    client['vendor'] = macAddressToVendor(client['mac_address'])
+                    client.mac_address = lineSplittedSpaceEnd(line)
+                    client.vendor = macAddressToVendor(client.mac_address)
                     continue
                 }
                 if(/client-hostname/.test(line)){
-                    client['hostname'] = line.split(' ').slice(-1)[0].replace(/"/g, '')
+                    client.hostname = lineSplittedSpaceEnd(line).replace(/"/g, '')
                     continue
                 }
             }
@@ -134,13 +138,13 @@ function dynamicClientList(network_address: string, netmask: string){
 
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
-    let response: Client[] = []
-    let staticList: StaticClient[] = []
+    const response: Client[] = []
+    const staticList: StaticClient[] = []
     const dhcpConf = fs.readFileSync(`${process.env.NEXT_PUBLIC_API_CONF_FILE_PATH}`, 'utf-8')
 
     const subnets = dhcpConf.split('subnet ').slice(1)
     const subnetsLength = subnets.length
-    for(let i = 0; i < subnetsLength; i++){
+    for(let i = 0; i < subnetsLength; i += 1){
         const lines = subnets[i].split('\n')
         const linesLength = lines.length
         const client: Client = {
@@ -157,42 +161,42 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
             start: '',
         }
 
-        for(let j = 0; j < linesLength; j++){
+        for(let j = 0; j < linesLength; j += 1){
             const line = lines[j].trim().replace(';', '')
-            const lineSplitted = line.split(' ')
 
             if(/netmask/.test(line)){
-                client['network_address'] = lineSplitted[0]
-                client['netmask'] = lineSplitted.slice(-1)[0].replace('{', '')
-                client['dynamic'] = dynamicClientList(client['network_address'], client['netmask'])
+                const networkAddress = line.split(' ')[0]
+                client.network_address = networkAddress
+                client.netmask = lineSplittedSpaceEnd(line).replace('{', '')
+                client.dynamic = dynamicClientList(client.network_address, client.netmask)
                 continue
             }
 
             if(/host/.test(line)){
-                staticClient['hostname'] = lineSplitted.slice(-1)[0].replace('{', '')
+                staticClient.hostname = lineSplittedSpaceEnd(line).replace('{', '')
                 continue
             }
 
             if(/hardware ethernet/.test(line)){
-                staticClient['mac_address'] = lineSplitted.slice(-1)[0]
-                staticClient['vendor'] = macAddressToVendor(staticClient['mac_address'])
+                staticClient.mac_address = lineSplittedSpaceEnd(line)
+                staticClient.vendor = macAddressToVendor(staticClient.mac_address)
                 continue
             }
 
             if(/fixed-address/.test(line)){
-                staticClient['ip_address'] = lineSplitted.slice(-1)[0]
+                staticClient.ip_address = lineSplittedSpaceEnd(line)
                 continue
             }
 
-            if(staticClient['hostname'] != ''){
-                staticClient['start'] = staticLeaseStartTime(staticClient['ip_address'], staticClient['mac_address'])
-                staticList.push(Object.assign({}, staticClient))
-                staticClient['hostname'] = ''
+            if(staticClient.hostname !== ''){
+                staticClient.start = staticLeaseStartTime(staticClient.ip_address, staticClient.mac_address)
+                staticList.push({...staticClient})
+                staticClient.hostname = ''
             }
         }
 
         // slice()で値渡しして、splice(0)で要素を全削除
-        client['static'] = staticList.slice()
+        client.static = staticList.slice()
         staticList.splice(0)
         response.push(client)
     }

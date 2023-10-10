@@ -1,20 +1,10 @@
-FROM node:20-alpine AS builder
+FROM node:20-slim AS runner
 
-WORKDIR /tmp
-RUN apk update && apk --no-cache add make gcc g++ \
-&& wget -O dhcpd-pools.tar.xz https://sourceforge.net/projects/dhcpd-pools/files/latest/download \
-&& mkdir dhcpd-pools && tar Jxfv dhcpd-pools.tar.xz -C dhcpd-pools --strip-components 1 \
-&& wget https://github.com/troydhanson/uthash/archive/master.zip \
-&& unzip master.zip
+ENV NODE_ENV=development
 
-WORKDIR /tmp/dhcpd-pools
-RUN ./configure --with-uthash=/tmp/uthash-master/include \
-&& make && make install
-
-
-FROM node:20-bookworm-slim AS runner
-
-COPY --from=builder /usr/local/bin/dhcpd-pools /usr/local/bin/dhcpd-pools
+RUN apt-get update \
+&& apt-get -qq install -y --no-install-recommends dhcpd-pools \
+&& rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -23,7 +13,7 @@ COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
 RUN \
   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
   elif [ -f package-lock.json ]; then npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i; \
+  elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i && pnpm store prune; \
   # Allow install without lockfile, so example works even without Node.js installed locally
   else echo "Warning: Lockfile not found. It is recommended to commit lockfiles to version control." && yarn install; \
   fi

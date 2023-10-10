@@ -10,6 +10,7 @@ const nextConfig = {
     images: {
         domains: ['img.pokemondb.net'],
     },
+    output: 'standalone',
 }
 
 module.exports = nextConfig

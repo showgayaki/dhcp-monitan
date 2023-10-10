@@ -1,5 +1,5 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
 import { execSync } from 'child_process'
+import type { NextApiRequest, NextApiResponse } from 'next'
 
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
