@@ -2,11 +2,13 @@ import { execSync } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { stripVTControlCharacters } from 'util'
 
 
 type Client = {
     network_address: string;
     netmask: string;
+    vendor: {[key: string]: number};
     static: StaticClient[];
     dynamic: DynamicClient[];
 }
@@ -40,7 +42,7 @@ function macAddressToVendor(macAddress: string){
 
     const jsonData = fs.readFileSync(jsonPath, 'utf-8')
     const ouiJson = JSON.parse(jsonData)
-    return (ouiJson[oui] === undefined)? '': ouiJson[oui]
+    return (ouiJson[oui] === undefined)? 'unknown': ouiJson[oui]
 }
 
 
@@ -87,7 +89,8 @@ function dynamicClientList(network_address: string, netmask: string){
     const leases = fs.readFileSync(`${process.env.NEXT_PUBLIC_DHCP_LEASE_FILE_PATH}`, 'utf-8')
     const clientList = leases.split('\nlease ')
     const leaseCount = clientList.length
-    const dynamicClientList: DynamicClient[] = []
+    const dynamicClientArray: DynamicClient[] = []
+    const vendorCount: {[key: string]: number} = {}
 
     for(let i = 1; i < leaseCount; i += 1){
         const clientLines = clientList[i].split('\n')
@@ -132,6 +135,12 @@ function dynamicClientList(network_address: string, netmask: string){
                 if(/hardware ethernet/.test(line)){
                     client.mac_address = lineEndSplittedSpace(line)
                     client.vendor = macAddressToVendor(client.mac_address)
+                    // ベンダーカウント
+                    if(client.vendor in vendorCount){
+                        vendorCount[client.vendor] += 1
+                    }else{
+                        vendorCount[client.vendor] = 1
+                    }
                     continue
                 }
                 if(/client-hostname/.test(line)){
@@ -142,12 +151,12 @@ function dynamicClientList(network_address: string, netmask: string){
         }
 
         if(inRange && isActive){
-            dynamicClientList.push(client)
+            dynamicClientArray.push(client)
         }
     }
 
     // IPアドレス順にソート
-    dynamicClientList.sort((a, b) => {
+    dynamicClientArray.sort((a, b) => {
         const numA = Number(a.ip_address.split('.').map((num) => (`000${num}`).slice(-3) ).join(''))
         const numB = Number(b.ip_address.split('.').map((num) => (`000${num}`).slice(-3) ).join(''))
         return numA - numB;
@@ -155,10 +164,10 @@ function dynamicClientList(network_address: string, netmask: string){
 
     // 重複クライアント判定、リース終了日付の新しい方を採用
     const unique: DynamicClient[] = []
-    const listLength = dynamicClientList.length
+    const listLength = dynamicClientArray.length
     for(let i = 1; i < listLength; i += 1){
-        const a = dynamicClientList[i - 1]
-        const b = dynamicClientList[i]
+        const a = dynamicClientArray[i - 1]
+        const b = dynamicClientArray[i]
         if(a.mac_address === b.mac_address){
             const endA = new Date(a.end)
             const endB = new Date(b.end)
@@ -172,7 +181,7 @@ function dynamicClientList(network_address: string, netmask: string){
     }
     // 重複削除
     const response = Array.from(new Set(unique))
-    return response
+    return {vendor: vendorCount, dynamic: response}
 }
 
 
@@ -189,6 +198,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         const client: Client = {
             network_address: '',
             netmask: '',
+            vendor: {},
             static: [],
             dynamic: [],
         }
@@ -207,7 +217,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
                 const networkAddress = line.split(' ')[0]
                 client.network_address = networkAddress
                 client.netmask = lineEndSplittedSpace(line).replace('{', '')
-                client.dynamic = dynamicClientList(client.network_address, client.netmask)
+
+                const dynamic = dynamicClientList(client.network_address, client.netmask)
+                client.dynamic = dynamic.dynamic
+                client.vendor = dynamic.vendor
                 continue
             }
 
