@@ -33,6 +33,7 @@ function lineEndSplittedSpace(line: string){
     return line.split(' ').slice(-1)[0]
 }
 
+
 function macAddressToVendor(macAddress: string){
     const oui = macAddress.split(':').slice(0, 3).join('').toUpperCase()
     const jsonPath = path.join(process.cwd(), 'public/assets/oui.json')
@@ -52,7 +53,7 @@ function staticLeaseStartTime(ipAddress: string, macAddress: string){
     // 20**-**-**T**:**:**.******+09:00 localhost dhcpd[1140]: DHCPACK on 192.168.***.*** to ma:ca:dd:re:ss:** (hostname) via eth0
 
     // ipAddressとmacAddressを含んでいる一番最後の行を取得
-    const output = execSync(`grep ${ipAddress} ${process.env.NEXT_PUBLIC_API_LOG_FILE_PATH} | grep ${macAddress} | tail -n 1`).toString()
+    const output = execSync(`grep ${ipAddress} ${process.env.NEXT_PUBLIC_DHCP_LOG_FILE_PATH} | grep ${macAddress} | tail -n 1`).toString()
 
     // 半角スペースでsplitして、dhcpdを含む要素のインデックスを取得
     const outputSplitted = output.split(' ')
@@ -83,10 +84,10 @@ function dynamicClientList(network_address: string, netmask: string){
     const datetime = (str: string) => str.split(' ').slice(-2).join('T').replace(/\//g, '-') + 'Z'
     const now = new Date()
 
-    const leases = fs.readFileSync(`${process.env.NEXT_PUBLIC_API_LEASE_FILE_PATH}`, 'utf-8')
+    const leases = fs.readFileSync(`${process.env.NEXT_PUBLIC_DHCP_LEASE_FILE_PATH}`, 'utf-8')
     const clientList = leases.split('\nlease ')
     const leaseCount = clientList.length
-    const dynamicClient: DynamicClient[] = []
+    const dynamicClientList: DynamicClient[] = []
 
     for(let i = 1; i < leaseCount; i += 1){
         const clientLines = clientList[i].split('\n')
@@ -113,7 +114,7 @@ function dynamicClientList(network_address: string, netmask: string){
                 client.ip_address = ipAddress
             }else if(inRange){
                 if(/starts/.test(line)){
-                    client.start = new Date(datetime(line)).toLocaleString(process.env.NEXT_PUBLIC_API_LOCALE, {'timeZone': process.env.TZ})
+                    client.start = new Date(datetime(line)).toLocaleString(process.env.NEXT_PUBLIC_API_LOCALE, {'timeZone': process.env.NEXT_PUBLIC_API_TZ})
                     continue
                 }
                 if(/ends/.test(line)){
@@ -121,7 +122,7 @@ function dynamicClientList(network_address: string, netmask: string){
                     // リース終了時間が未来かどうかでアクティブか判定する
                     const end = new Date(datetime(line))
                     if(now.getTime() < end.getTime()){
-                        client.end = new Date(end).toLocaleString(process.env.NEXT_PUBLIC_API_LOCALE, {'timeZone': process.env.TZ})
+                        client.end = new Date(end).toLocaleString(process.env.NEXT_PUBLIC_API_LOCALE, {'timeZone': process.env.NEXT_PUBLIC_API_TZ})
                         isActive = true
                     }else{
                         break
@@ -141,17 +142,44 @@ function dynamicClientList(network_address: string, netmask: string){
         }
 
         if(inRange && isActive){
-            dynamicClient.push(client)
+            dynamicClientList.push(client)
         }
     }
-    return dynamicClient
+
+    // IPアドレス順にソート
+    dynamicClientList.sort((a, b) => {
+        const numA = Number(a.ip_address.split('.').map((num) => (`000${num}`).slice(-3) ).join(''))
+        const numB = Number(b.ip_address.split('.').map((num) => (`000${num}`).slice(-3) ).join(''))
+        return numA - numB;
+    })
+
+    // 重複クライアント判定、リース終了日付の新しい方を採用
+    const unique: DynamicClient[] = []
+    const listLength = dynamicClientList.length
+    for(let i = 1; i < listLength; i += 1){
+        const a = dynamicClientList[i - 1]
+        const b = dynamicClientList[i]
+        if(a.mac_address === b.mac_address){
+            const endA = new Date(a.end)
+            const endB = new Date(b.end)
+
+            if(endA.getTime() <= endB.getTime()){
+                unique.push(b)
+            }
+        }else{
+            unique.push(a)
+        }
+    }
+    // 重複削除
+    const response = Array.from(new Set(unique))
+    return response
 }
 
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
     const response: Client[] = []
     const staticList: StaticClient[] = []
-    const dhcpConf = fs.readFileSync(`${process.env.NEXT_PUBLIC_API_CONF_FILE_PATH}`, 'utf-8')
+    const dhcpConf = fs.readFileSync(`${process.env.NEXT_PUBLIC_DHCP_CONF_FILE_PATH}`, 'utf-8')
 
     const subnets = dhcpConf.split('subnet ').slice(1)
     const subnetsLength = subnets.length
