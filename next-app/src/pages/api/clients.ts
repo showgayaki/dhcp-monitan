@@ -1,14 +1,12 @@
 import { execSync } from 'child_process'
 import fs from 'fs'
-import path from 'path'
+import { macAddressToVendor } from '@features/parseClient'
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { stripVTControlCharacters } from 'util'
 
 
 type Client = {
     network_address: string;
     netmask: string;
-    vendor: {[key: string]: number};
     static: StaticClient[];
     dynamic: DynamicClient[];
 }
@@ -28,21 +26,6 @@ type StaticClient = {
     mac_address: string;
     vendor: string;
     start: string;
-}
-
-
-function lineEndSplittedSpace(line: string){
-    return line.split(' ').slice(-1)[0]
-}
-
-
-function macAddressToVendor(macAddress: string){
-    const oui = macAddress.split(':').slice(0, 3).join('').toUpperCase()
-    const jsonPath = path.join(process.cwd(), 'public/assets/oui.json')
-
-    const jsonData = fs.readFileSync(jsonPath, 'utf-8')
-    const ouiJson = JSON.parse(jsonData)
-    return (ouiJson[oui] === undefined)? 'unknown': ouiJson[oui]
 }
 
 
@@ -90,7 +73,6 @@ function dynamicClientList(network_address: string, netmask: string){
     const clientList = leases.split('\nlease ')
     const leaseCount = clientList.length
     const dynamicClientArray: DynamicClient[] = []
-    const vendorCount: {[key: string]: number} = {}
 
     for(let i = 1; i < leaseCount; i += 1){
         const clientLines = clientList[i].split('\n')
@@ -126,25 +108,20 @@ function dynamicClientList(network_address: string, netmask: string){
                     const end = new Date(datetime(line))
                     if(now.getTime() < end.getTime()){
                         client.end = new Date(end).toLocaleString(process.env.NEXT_PUBLIC_API_LOCALE, {'timeZone': process.env.NEXT_PUBLIC_API_TZ})
+                        console.log(client.ip_address)
                         isActive = true
                     }else{
-                        break
+                        isActive = false
                     }
                     continue
                 }
                 if(/hardware ethernet/.test(line)){
-                    client.mac_address = lineEndSplittedSpace(line)
+                    client.mac_address = line.split(' ').slice(-1)[0]
                     client.vendor = macAddressToVendor(client.mac_address)
-                    // ベンダーカウント
-                    if(client.vendor in vendorCount){
-                        vendorCount[client.vendor] += 1
-                    }else{
-                        vendorCount[client.vendor] = 1
-                    }
                     continue
                 }
                 if(/client-hostname/.test(line)){
-                    client.hostname = lineEndSplittedSpace(line).replace(/"/g, '')
+                    client.hostname = line.split(' ').slice(-1)[0].replace(/"/g, '')
                     continue
                 }
             }
@@ -177,11 +154,14 @@ function dynamicClientList(network_address: string, netmask: string){
             }
         }else{
             unique.push(a)
+            if(i === listLength - 1){
+                unique.push(b)
+            }
         }
     }
     // 重複削除
     const response = Array.from(new Set(unique))
-    return {vendor: vendorCount, dynamic: response}
+    return response
 }
 
 
@@ -198,7 +178,6 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         const client: Client = {
             network_address: '',
             netmask: '',
-            vendor: {},
             static: [],
             dynamic: [],
         }
@@ -214,29 +193,27 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
             const line = lines[j].trim().replace(';', '')
 
             if(/netmask/.test(line)){
-                const networkAddress = line.split(' ')[0]
-                client.network_address = networkAddress
-                client.netmask = lineEndSplittedSpace(line).replace('{', '')
+                client.network_address = line.split(' ')[0]
+                client.netmask = line.split(' ').slice(-1)[0].replace('{', '')
 
                 const dynamic = dynamicClientList(client.network_address, client.netmask)
-                client.dynamic = dynamic.dynamic
-                client.vendor = dynamic.vendor
+                client.dynamic = dynamicClientList(client.network_address, client.netmask)
                 continue
             }
 
             if(/host/.test(line)){
-                staticClient.hostname = lineEndSplittedSpace(line).replace('{', '')
+                staticClient.hostname = line.split(' ').slice(-1)[0].replace('{', '')
                 continue
             }
 
             if(/hardware ethernet/.test(line)){
-                staticClient.mac_address = lineEndSplittedSpace(line)
+                staticClient.mac_address = line.split(' ').slice(-1)[0]
                 staticClient.vendor = macAddressToVendor(staticClient.mac_address)
                 continue
             }
 
             if(/fixed-address/.test(line)){
-                staticClient.ip_address = lineEndSplittedSpace(line)
+                staticClient.ip_address = line.split(' ').slice(-1)[0]
                 continue
             }
 
