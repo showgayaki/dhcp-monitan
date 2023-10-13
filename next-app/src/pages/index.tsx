@@ -42,6 +42,7 @@ import { AdminLayout } from '@layout'
 import { Networks } from '@models/networks'
 import { SharedNetworkTable } from '@components/SharedNetwork'
 import { SubnetTable } from '@components/Subnet'
+import { VendorTable } from '@components/VendorTable'
 import { newResource, Resource } from '@models/resource'
 import { transformResponseWrapper, useSWRAxios } from '@hooks'
 import SubnetStat from '@components/Subnet/SubnetTable'
@@ -134,66 +135,9 @@ const Home: NextPage = () => {
                             Vendor List Count
                         </Card.Header>
                         <Card.Body>
-                            <div className="table-responsive">
-                                <table className="table border mb-0">
-                                    <thead className="table-light fw-semibold">
-                                        <tr className="align-middle">
-                                            <th>Vendor</th>
-                                            <th>Count</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr className="align-middle">
-                                            <td>
-                                                N/A
-                                            </td>
-                                            <td>
-                                                5
-                                            </td>
-                                        </tr>
-                                        <tr className="align-middle">
-                                            <td>
-                                                Espressif Inc.
-                                            </td>
-                                            <td>
-                                                2
-                                            </td>
-                                        </tr>
-                                        <tr className="align-middle">
-                                            <td>
-                                                Apple, Inc.
-                                            </td>
-                                            <td>
-                                                2
-                                            </td>
-                                        </tr>
-                                        <tr className="align-middle">
-                                            <td>
-                                                Google, Inc.
-                                            </td>
-                                            <td>
-                                                1
-                                            </td>
-                                        </tr>
-                                        <tr className="align-middle">
-                                            <td>
-                                                Seiko Epson Corporation
-                                            </td>
-                                            <td>
-                                                1
-                                            </td>
-                                        </tr>
-                                        <tr className="align-middle">
-                                            <td>
-                                                Amazon Technologies Inc.
-                                            </td>
-                                            <td>
-                                                2
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <VendorTable
+                                vendor={resource.vendor}
+                            />
                         </Card.Body>
                     </Card>
                 </div>
