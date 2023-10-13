@@ -11,7 +11,11 @@ type Props = {
 export default function SubnetStat(props: Props) {
     const { subnet } = props
 
-    const calcPecentage = (used: number, defined: number) => Math.floor((used / defined) * 1000) / 1000 * 100
+    const calcPecentage = (used: number, defined: number) => {
+        const percentageString = (used / defined * 100).toString()
+        return Number(Number.parseFloat(percentageString).toFixed(2))
+    }
+
     const variant = (percentage: number) => {
         switch(true){
             case percentage >= 90:
