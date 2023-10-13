@@ -15,8 +15,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     const macAddressList: string[] = []
 
     const datetime = (str: string) => str.split(' ').slice(-2).join('T').replace(/\//g, '-') + 'Z'
-
     const now = new Date()
+
     let isActive = false
     for(let i = 0; i < clientLinesLength; i += 1){
         if(/ends/.test(clientLines[i])){
@@ -46,8 +46,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
             }
         }
     }
-    console.log(macAddressList.length)
-    console.log(macAddressList)
+
     response['vendor'] = vendorCount
 
     res.status(200)

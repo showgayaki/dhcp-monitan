@@ -39,7 +39,7 @@ import {
 } from '@fortawesome/free-brands-svg-icons'
 import React, { useEffect, useState } from 'react'
 import { AdminLayout } from '@layout'
-import { Subnet, SharedNetwork, Summary, Networks } from '@models/networks'
+import { Networks } from '@models/networks'
 import { SharedNetworkList } from '@components/SharedNetwork'
 import { newResource, Resource } from '@models/resource'
 import { transformResponseWrapper, useSWRAxios } from '@hooks'
@@ -122,7 +122,7 @@ const Home: NextPage = () => {
                                 <table className="table border mb-0">
                                     <thead className="table-light fw-semibold">
                                         <tr className="align-middle">
-                                            <th>Subnet Location</th>
+                                            <th>Location</th>
                                             <th>IP Range</th>
                                             <th>Used</th>
                                             <th>Utilization</th>
@@ -155,7 +155,7 @@ const Home: NextPage = () => {
                                         </tr>
                                         <tr className="align-middle">
                                             <td>
-                                                192.168.1.0
+                                                192.168.2.0
                                             </td>
                                             <td>
                                                 192.168.2.50 - 192.168.2.245
