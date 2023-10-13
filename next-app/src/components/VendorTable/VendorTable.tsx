@@ -1,4 +1,4 @@
-import { Table, ProgressBar } from 'react-bootstrap'
+import { Table } from 'react-bootstrap'
 import React from 'react'
 
 
@@ -7,7 +7,7 @@ type Props = {
 }
 
 
-export default function SubnetStat(props: Props) {
+export default function VendorTable(props: Props) {
     const { vendor } = props
 
     return (

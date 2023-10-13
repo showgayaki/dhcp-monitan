@@ -42,31 +42,12 @@ import { AdminLayout } from '@layout'
 import { Networks } from '@models/networks'
 import { SharedNetworkTable, SubnetTable } from '@components/NetworkTable'
 import { VendorTable } from '@components/VendorTable'
+import { VendorChart } from '@components/VendorChart'
 import { newResource, Resource } from '@models/resource'
 import { transformResponseWrapper, useSWRAxios } from '@hooks'
 
 
 Chart.register(ArcElement, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Legend, Tooltip, Filler)
-
-const random = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min)
-const doughnutData = {
-    labels: [
-        'Red',
-        'Blue',
-        'Yellow'
-    ],
-    datasets: [{
-        label: 'My First Dataset',
-        data: [300, 50, 100],
-        backgroundColor: [
-            'rgb(255, 99, 132)',
-            'rgb(54, 162, 235)',
-            'rgb(255, 205, 86)'
-        ],
-        hoverOffset: 4
-    }]
-}
-
 
 const Home: NextPage = () => {
     const networksUrl = `${process.env.NEXT_PUBLIC_POKEMON_LIST_API_BASE_URL}networks` || ''
@@ -107,9 +88,7 @@ const Home: NextPage = () => {
                             Shared Networks
                         </Card.Header>
                         <Card.Body>
-                            <SharedNetworkTable
-                                sharedNetworks={resource.sharedNetworks}
-                            />
+                            <SharedNetworkTable sharedNetworks={resource.sharedNetworks} />
                         </Card.Body>
                     </Card>
                 </div>
@@ -119,9 +98,7 @@ const Home: NextPage = () => {
                             Subnets
                         </Card.Header>
                         <Card.Body>
-                            <SubnetTable
-                                subnet={resource.subnets}
-                            />
+                            <SubnetTable subnet={resource.subnets} />
                         </Card.Body>
                     </Card>
                 </div>
@@ -133,9 +110,7 @@ const Home: NextPage = () => {
                             Vendor List Count
                         </Card.Header>
                         <Card.Body>
-                            <VendorTable
-                                vendor={resource.vendor}
-                            />
+                            <VendorTable vendor={resource.vendor} />
                         </Card.Body>
                     </Card>
                 </div>
@@ -145,7 +120,7 @@ const Home: NextPage = () => {
                             Vendor Chart
                         </Card.Header>
                         <Card.Body>
-                            <Doughnut data={doughnutData} />
+                            <VendorChart vendor={resource.vendor} />
                         </Card.Body>
                     </Card>
                 </div>
