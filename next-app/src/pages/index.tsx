@@ -40,9 +40,11 @@ import {
 import React, { useEffect, useState } from 'react'
 import { AdminLayout } from '@layout'
 import { Networks } from '@models/networks'
-import { SharedNetworkList } from '@components/SharedNetwork'
+import { SharedNetworkTable } from '@components/SharedNetwork'
+import { SubnetTable } from '@components/Subnet'
 import { newResource, Resource } from '@models/resource'
 import { transformResponseWrapper, useSWRAxios } from '@hooks'
+import SubnetStat from '@components/Subnet/SubnetTable'
 
 
 Chart.register(ArcElement, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Legend, Tooltip, Filler)
@@ -106,7 +108,7 @@ const Home: NextPage = () => {
                             Shared Networks
                         </Card.Header>
                         <Card.Body>
-                            <SharedNetworkList
+                            <SharedNetworkTable
                                 sharedNetworks={resource.sharedNetworks}
                             />
                         </Card.Body>
@@ -118,68 +120,9 @@ const Home: NextPage = () => {
                             Subnets
                         </Card.Header>
                         <Card.Body>
-                            <div className="table-responsive">
-                                <table className="table border mb-0">
-                                    <thead className="table-light fw-semibold">
-                                        <tr className="align-middle">
-                                            <th>Location</th>
-                                            <th>IP Range</th>
-                                            <th>Used</th>
-                                            <th>Utilization</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr className="align-middle">
-                                            <td>
-                                                192.168.1.0
-                                            </td>
-                                            <td>
-                                                192.168.1.50 - 192.168.1.245
-                                            </td>
-                                            <td>
-                                                12(10.3%)
-                                            </td>
-                                            <td>
-                                                <div className="clearfix">
-                                                    <div className="float-start">
-                                                        <div className="fw-semibold">50%</div>
-                                                    </div>
-                                                    <div className="float-end">
-                                                        <small className="text-black-50">
-                                                            Jun 11, 2020 - Jul 10, 2020
-                                                        </small>
-                                                    </div>
-                                                </div>
-                                                <ProgressBar className="progress-thin" variant="info" now={50} />
-                                            </td>
-                                        </tr>
-                                        <tr className="align-middle">
-                                            <td>
-                                                192.168.2.0
-                                            </td>
-                                            <td>
-                                                192.168.2.50 - 192.168.2.245
-                                            </td>
-                                            <td>
-                                                12(10.3%)
-                                            </td>
-                                            <td>
-                                                <div className="clearfix">
-                                                    <div className="float-start">
-                                                        <div className="fw-semibold">50%</div>
-                                                    </div>
-                                                    <div className="float-end">
-                                                        <small className="text-black-50">
-                                                            Jun 11, 2020 - Jul 10, 2020
-                                                        </small>
-                                                    </div>
-                                                </div>
-                                                <ProgressBar className="progress-thin" variant="info" now={50} />
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <SubnetTable
+                                subnet={resource.subnets}
+                            />
                         </Card.Body>
                     </Card>
                 </div>
