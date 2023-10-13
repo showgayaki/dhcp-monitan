@@ -47,7 +47,18 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         }
     }
 
-    response['vendor'] = vendorCount
+    // vendorを多い順にソート
+    const keys = Object.keys(vendorCount)
+    const sortedVendorCount: {[key: string]: number} = {}
+    keys.sort((a, b) => {
+        return vendorCount[b] - vendorCount[a]
+    })
+    for(const key of keys){
+        console.log(key)
+        sortedVendorCount[key] = vendorCount[key]
+    }
+
+    response['vendor'] = sortedVendorCount
 
     res.status(200)
         .json(response)
