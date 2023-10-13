@@ -54,7 +54,6 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         return vendorCount[b] - vendorCount[a]
     })
     for(const key of keys){
-        console.log(key)
         sortedVendorCount[key] = vendorCount[key]
     }
 

@@ -40,12 +40,10 @@ import {
 import React, { useEffect, useState } from 'react'
 import { AdminLayout } from '@layout'
 import { Networks } from '@models/networks'
-import { SharedNetworkTable } from '@components/SharedNetwork'
-import { SubnetTable } from '@components/Subnet'
+import { SharedNetworkTable, SubnetTable } from '@components/NetworkTable'
 import { VendorTable } from '@components/VendorTable'
 import { newResource, Resource } from '@models/resource'
 import { transformResponseWrapper, useSWRAxios } from '@hooks'
-import SubnetStat from '@components/Subnet/SubnetTable'
 
 
 Chart.register(ArcElement, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Legend, Tooltip, Filler)
