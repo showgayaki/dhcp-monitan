@@ -66,6 +66,7 @@ const Home: NextPage = () => {
             // ハイフンを含んでいてアレなので、キー名変更しておく
             d.sharedNetworks = d['shared-networks']
             delete d['shared-networks']
+            console.log(d)
             return d
         }),
     }, {

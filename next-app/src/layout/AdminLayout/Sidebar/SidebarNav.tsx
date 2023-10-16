@@ -18,6 +18,7 @@ import {
     faPencil,
     faPuzzlePiece,
     faRightToBracket,
+    faTable,
 } from '@fortawesome/free-solid-svg-icons'
 import React, {
     PropsWithChildren, useContext, useEffect, useState,
@@ -133,9 +134,8 @@ export default function SidebarNav() {
                 Dashboard
                 <small className="ms-auto"><Badge bg="info" className="ms-auto">NEW</Badge></small>
             </SidebarNavItem>
-            <SidebarNavItem icon={faCode} href="/pokemons">
-                Sample (SSR)
-                <small className="ms-auto"><Badge bg="danger" className="ms-auto">DEMO</Badge></small>
+            <SidebarNavItem icon={faTable} href="/leases">
+                Leases
             </SidebarNavItem>
             <SidebarNavItem icon={faCode} href="/pokemons/client">
                 Sample (CSR)

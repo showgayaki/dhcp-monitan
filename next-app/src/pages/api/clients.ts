@@ -51,7 +51,7 @@ function staticLeaseStartTime(ipAddress: string, macAddress: string){
     // RSYSLOG_TraditionalFileFormatの場合は、年が取れない(2001年になる)ので「月日 時間」にしておく
     const leaseDate = (locale: string) => (leaseDateObject.getFullYear() === 2001)? leaseDateObject.toLocaleString(locale).replace('2001/', ''): leaseDateObject.toLocaleString(locale)
 
-    return (Number.isNaN(leaseDateObject.getTime()))? '': leaseDate(process.env.NEXT_PUBLIC_API_LOCALE ?? '')
+    return (Number.isNaN(leaseDateObject.getTime()))? 'N/A': leaseDate(process.env.NEXT_PUBLIC_API_LOCALE ?? '')
 }
 
 
@@ -108,7 +108,6 @@ function dynamicClientList(network_address: string, netmask: string){
                     const end = new Date(datetime(line))
                     if(now.getTime() < end.getTime()){
                         client.end = new Date(end).toLocaleString(process.env.NEXT_PUBLIC_API_LOCALE, {'timeZone': process.env.NEXT_PUBLIC_API_TZ})
-                        console.log(client.ip_address)
                         isActive = true
                     }else{
                         isActive = false

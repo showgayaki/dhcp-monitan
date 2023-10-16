@@ -1,3 +1,4 @@
+import { ChartOptions } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2'
 import React from 'react'
 
@@ -38,10 +39,12 @@ export default function VendorChart(props: Props) {
             hoverOffset: 4
         }]
     }
-    const options = {
+    const options: ChartOptions = {
         responsive: true,
-        legend: {
-            position: 'right',
+        plugins: {
+            legend: {
+                position: 'right',
+            }
         }
     }
 
