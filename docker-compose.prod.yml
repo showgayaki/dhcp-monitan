@@ -7,18 +7,34 @@ services:
       context: ./next-app
       dockerfile: prod.Dockerfile
       args:
-        ENV_VARIABLE: ${ENV_VARIABLE}
-        NEXT_PUBLIC_ENV_VARIABLE: ${NEXT_PUBLIC_ENV_VARIABLE}
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
+        NEXT_PUBLIC_API_RETRY_INTERVAL_IN_SECONDS: ${NEXT_PUBLIC_API_RETRY_INTERVAL_IN_SECONDS}
+        NEXT_PUBLIC_API_MAX_RETRY: ${NEXT_PUBLIC_API_MAX_RETRY}
+        NEXT_PUBLIC_DHCP_CONF_FILE_PATH: ${NEXT_PUBLIC_DHCP_CONF_FILE_PATH}
+        NEXT_PUBLIC_DHCP_LEASE_FILE_PATH: ${NEXT_PUBLIC_DHCP_LEASE_FILE_PATH}
+        NEXT_PUBLIC_DHCP_LOG_FILE_PATH: ${NEXT_PUBLIC_DHCP_LOG_FILE_PATH}
+        NEXT_PUBLIC_API_TZ: ${NEXT_PUBLIC_API_TZ}
+        NEXT_PUBLIC_API_LOCALE: ${NEXT_PUBLIC_API_LOCALE}
+    volumes:
+      - type: bind
+        source: ${NEXT_PUBLIC_DHCP_CONF_FILE_PATH}
+        target: ${NEXT_PUBLIC_DHCP_CONF_FILE_PATH}
+      - type: bind
+        source: ${NEXT_PUBLIC_DHCP_LEASE_FILE_PATH}
+        target: ${NEXT_PUBLIC_DHCP_LEASE_FILE_PATH}
+      - type: bind
+        source: ${NEXT_PUBLIC_DHCP_LOG_FILE_PATH}
+        target: ${NEXT_PUBLIC_DHCP_LOG_FILE_PATH}
     restart: always
     ports:
       - 3000:3000
     networks:
-      - my_network
+      - dhcp-monitan_network
 
   # Add more containers below (nginx, postgres, etc.)
 
 # Define a network, which allows containers to communicate
 # with each other, by using their container name as a hostname
 networks:
-  my_network:
+  dhcp-monitan_network:
     external: true

@@ -8,7 +8,7 @@ import { ClientTable } from '@components/ClientTable'
 
 
 const Leases: NextPage = () => {
-    const networksUrl = `${process.env.NEXT_PUBLIC_POKEMON_LIST_API_BASE_URL}clients` || ''
+    const networksUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}clients` || ''
 
     const [fallbackResource, setFallbackResource] = useState<ClientList[]>(
         [{
@@ -37,10 +37,10 @@ const Leases: NextPage = () => {
 
     return (
         <AdminLayout>
-            <Tabs>
+            <Tabs className='text-decoration-none'>
                 {resource.map((network, index) => {
                     return (
-                        <Tab key={ index } eventKey={ network.network_address } title={ network.network_address } className='py-3 px-2'>
+                        <Tab key={index} eventKey={network.network_address} title={network.network_address} className='py-3 px-2'>
                             <div className="row">
                                 <div className="col-md-12 mb-3">
                                     <Card>
@@ -48,7 +48,7 @@ const Leases: NextPage = () => {
                                             Static Leases
                                         </Card.Header>
                                         <Card.Body>
-                                            <ClientTable type='static' clientList={ network.static } />
+                                            <ClientTable type='static' clientList={network.static} />
                                         </Card.Body>
                                     </Card>
                                 </div>
@@ -60,7 +60,7 @@ const Leases: NextPage = () => {
                                             Dynamic Leases
                                         </Card.Header>
                                         <Card.Body>
-                                            <ClientTable type='dynamic' clientList={ network.dynamic } />
+                                            <ClientTable type='dynamic' clientList={network.dynamic} />
                                         </Card.Body>
                                     </Card>
                                 </div>

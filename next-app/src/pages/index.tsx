@@ -50,7 +50,7 @@ import { transformResponseWrapper, useSWRAxios } from '@hooks'
 Chart.register(ArcElement, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Legend, Tooltip, Filler)
 
 const Home: NextPage = () => {
-    const networksUrl = `${process.env.NEXT_PUBLIC_POKEMON_LIST_API_BASE_URL}networks` || ''
+    const networksUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}networks` || ''
 
     const [fallbackResource, setFallbackResource] = useState<Networks>(
         {
@@ -63,9 +63,6 @@ const Home: NextPage = () => {
     const { data: { data: resource } } = useSWRAxios<Networks>({
         url: networksUrl,
         transformResponse: transformResponseWrapper((d: Networks) => {
-            // ハイフンを含んでいてアレなので、キー名変更しておく
-            d.sharedNetworks = d['shared-networks']
-            delete d['shared-networks']
             console.log(d)
             return d
         }),

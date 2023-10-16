@@ -8,6 +8,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     const output = execSync(`dhcpd-pools -c ${process.env.NEXT_PUBLIC_DHCP_CONF_FILE_PATH} -l ${process.env.NEXT_PUBLIC_DHCP_LEASE_FILE_PATH} -f j -A`)
     const response = JSON.parse(output.toString())
 
+    // ハイフンを含んでいてアレなので、キー名変更しておく
+    response.sharedNetworks = response['shared-networks']
+    delete response['shared-networks']
+
     const vendorCount: {[key: string]: number} = {}
     const leases = fs.readFileSync(`${process.env.NEXT_PUBLIC_DHCP_LEASE_FILE_PATH}`, 'utf-8')
     const clientLines = leases.split('\n')
