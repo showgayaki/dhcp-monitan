@@ -24,16 +24,16 @@ export default function ClientTable(props: Props) {
                 </tr>
             </thead>
             <tbody>
-            {clientList.map((client) => {
+            {clientList.map((client, index) => {
                 const clientNode: ReactNode[] = []
                 clientNode.push(
-                    <tr className="align-middle">
-                        <td>{ client.ip_address }</td>
-                        <td>{ client.hostname }</td>
-                        <td>{ client.mac_address }</td>
-                        <td>{ client.vendor }</td>
-                        <td>{ client.start }</td>
-                        { (type == 'static')? false: <td>{ client.end }</td> }
+                    <tr key={index} className="align-middle">
+                        <td>{client.ip_address}</td>
+                        <td>{client.hostname}</td>
+                        <td>{client.mac_address}</td>
+                        <td>{client.vendor}</td>
+                        <td>{client.start}</td>
+                        { (type == 'static')? false: <td>{client.end}</td> }
                     </tr>
                 )
                     return clientNode
