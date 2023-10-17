@@ -1,14 +1,19 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
+
 type Middleware = (request: NextRequest) => NextResponse
+
+const nextAuthUrl = (url: string) => {
+    return process.env.NEXT_PUBLIC_NEXTAUTH_URL || url
+}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const redirectIfAuthenticated: Middleware = (request) => {
     const authSession = request.cookies.get('auth')?.value
 
     if (authSession) {
-        return NextResponse.redirect(new URL('/', request.url))
+        return NextResponse.redirect(new URL('/', nextAuthUrl(request.url)))
     }
 
     return NextResponse.next()
@@ -18,10 +23,10 @@ const authenticated: Middleware = (request) => {
     const authSession = request.cookies.get('auth')?.value
 
     if (!authSession) {
-        const response = NextResponse.redirect(new URL('/login', request.url))
+        const response = NextResponse.redirect(new URL('/login', nextAuthUrl(request.url)))
         response.cookies.set({
             name: 'redirect',
-            value: request.url,
+            value: `${nextAuthUrl(request.url)}`,
         })
         return response
     }
@@ -31,17 +36,16 @@ const authenticated: Middleware = (request) => {
 
 export default function middleware(request: NextRequest) {
     // Uncomment if you want to redirect if authenticated.
-    // if ([
-    //   '/login',
-    //   '/register',
-    // ].includes(request.nextUrl.pathname)) {
-    //   return redirectIfAuthenticated(request)
-    // }
+    if ([
+        '/login',
+        '/register',
+    ].includes(request.nextUrl.pathname)) {
+        return redirectIfAuthenticated(request)
+    }
 
     if ([
         '/',
-        '/pokemons',
-        '/pokemons/client',
+        '/leases',
     ].includes(request.nextUrl.pathname)) {
         return authenticated(request)
     }

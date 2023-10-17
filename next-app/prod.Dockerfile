@@ -2,6 +2,8 @@ FROM node:20-slim AS base
 
 ENV NODE_ENV=production
 
+ARG NEXT_PUBLIC_NEXTAUTH_URL
+ENV NEXT_PUBLIC_NEXTAUTH_URL=${NEXT_PUBLIC_NEXTAUTH_URL}
 ARG NEXT_PUBLIC_API_BASE_URL
 ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
 ARG NEXT_PUBLIC_API_RETRY_INTERVAL_IN_SECONDS
@@ -18,6 +20,7 @@ ARG NEXT_PUBLIC_API_TZ
 ENV NEXT_PUBLIC_API_TZ=${NEXT_PUBLIC_API_TZ}
 ARG NEXT_PUBLIC_API_LOCALE
 ENV NEXT_PUBLIC_API_LOCALE=${NEXT_PUBLIC_API_LOCALE}
+
 
 # Step 1. Rebuild the source code only when needed
 FROM base AS builder
@@ -61,8 +64,8 @@ COPY --from=builder /usr/bin/dhcpd-pools /usr/bin/dhcpd-pools
 WORKDIR /app
 
 # Don't run production as root
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN addgroup --system --gid 1001 nodejs \
+&& adduser --system --uid 1001 nextjs
 USER nextjs
 
 COPY --from=builder /app/public ./public
