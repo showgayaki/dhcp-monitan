@@ -11,9 +11,13 @@ import { useRouter } from 'next/router'
 import axios from 'axios'
 import { deleteCookie, getCookie } from 'cookies-next'
 
+
 const Login: NextPage = () => {
     const router = useRouter()
     const [submitting, setSubmitting] = useState(false)
+
+    const [username, setUsername] = useState('')
+    const [password, setPassword] = useState('')
 
     const getRedirect = () => {
         const redirect = getCookie('redirect')
@@ -31,7 +35,12 @@ const Login: NextPage = () => {
 
         setSubmitting(true)
 
-        const res = await axios.post('api/mock/login')
+        const inputData = {
+            'username': username,
+            'password': password,
+        }
+
+        const res = await axios.post('api/mock/login', inputData)
         if (res.status === 200) {
             router.push(getRedirect())
         }
@@ -63,7 +72,7 @@ const Login: NextPage = () => {
                                                 disabled={submitting}
                                                 placeholder="Username"
                                                 aria-label="Username"
-                                                defaultValue="Username"
+                                                onChange={(e) => setUsername(e.target.value)}
                                             />
                                         </InputGroup>
 
@@ -81,7 +90,7 @@ const Login: NextPage = () => {
                                                 disabled={submitting}
                                                 placeholder="Password"
                                                 aria-label="Password"
-                                                defaultValue="Password"
+                                                onChange={(e) => setPassword(e.target.value)}
                                             />
                                         </InputGroup>
 
