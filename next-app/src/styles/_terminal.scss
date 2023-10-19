@@ -1,17 +1,35 @@
-.terminal{
-    appearance: none;
+@mixin teminal-base($color){
     -webkit-appearance: none;
     resize: none;
     border: none;
     border-radius: 0;
-    background-color: #000;
-    color: #fff;
-    font-size: .8rem;
+    background-color: inherit;
+    color: $color;
+    font-size: inherit;
+    font-family: monospace, serif;
 
     &:focus{
         outline: none;
         background-color: #000;
-        color: #fff;
+        color: $color;
         box-shadow: none;
+    }
+}
+
+.terminal{
+    font-size: .8rem!important;
+    display: flex;
+    background-color: #000;
+    color: #fff;
+
+    &__rows{
+        width: 3.5em;
+        padding-right: 0;
+        text-align: right;
+        @include teminal-base(#666);
+    }
+
+    &__textarea{
+        @include teminal-base(#fff);
     }
 }
