@@ -5,7 +5,10 @@ import {
 import {
     faChevronUp,
     faGauge,
+    faGear,
     faTable,
+    faCode,
+    faPenToSquare,
 } from '@fortawesome/free-solid-svg-icons'
 import React, {
     PropsWithChildren, useContext, useEffect, useState,
@@ -117,11 +120,22 @@ const SidebarNavGroup = (props: SidebarNavGroupProps) => {
 export default function SidebarNav() {
     return (
         <ul className="list-unstyled">
+            <SidebarNavTitle>Stats</SidebarNavTitle>
             <SidebarNavItem icon={faGauge} href="/">
                 Dashboard
             </SidebarNavItem>
             <SidebarNavItem icon={faTable} href="/leases">
                 Leases
+            </SidebarNavItem>
+            <SidebarNavItem icon={faCode} href="/logs">
+                DHCP Logs
+            </SidebarNavItem>
+            <SidebarNavTitle>Config & Settings</SidebarNavTitle>
+            <SidebarNavItem icon={faGear} href="/confifg">
+                DHCP Config
+            </SidebarNavItem>
+            <SidebarNavItem icon={faPenToSquare} href="/settings">
+                Monitan Settings
             </SidebarNavItem>
         </ul>
     )
