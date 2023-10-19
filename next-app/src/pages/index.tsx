@@ -1,20 +1,5 @@
 import type { NextPage } from 'next'
-import Image from 'next/image'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-    faArrowDown,
-    faArrowUp,
-    faDownload,
-    faEllipsisVertical,
-    faMars,
-    faSearch,
-    faUsers,
-    faVenus,
-} from '@fortawesome/free-solid-svg-icons'
-import {
-    Button, ButtonGroup, Card, Dropdown, ProgressBar,
-} from 'react-bootstrap'
-import { Bar, Line, Doughnut } from 'react-chartjs-2'
+import { Card } from 'react-bootstrap'
 import {
     ArcElement,
     BarElement,
@@ -27,23 +12,12 @@ import {
     PointElement,
     Tooltip,
 } from 'chart.js'
-import {
-    faCcAmex,
-    faCcApplePay,
-    faCcPaypal,
-    faCcStripe,
-    faCcVisa,
-    faFacebookF,
-    faLinkedinIn,
-    faTwitter,
-} from '@fortawesome/free-brands-svg-icons'
 import React, { useEffect, useState } from 'react'
 import { AdminLayout } from '@layout'
 import { Networks } from '@models/networks'
 import { SharedNetworkTable, SubnetTable } from '@components/NetworkTable'
 import { VendorTable } from '@components/VendorTable'
 import { VendorChart } from '@components/VendorChart'
-import { newResource, Resource } from '@models/resource'
 import { transformResponseWrapper, useSWRAxios } from '@hooks'
 
 
