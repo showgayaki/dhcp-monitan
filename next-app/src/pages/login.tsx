@@ -6,7 +6,7 @@ import {
     Button, Col, Container, Form, InputGroup, Row,
 } from 'react-bootstrap'
 import Link from 'next/link'
-import { SyntheticEvent, useState } from 'react'
+import { SyntheticEvent, useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import axios from 'axios'
 import { deleteCookie, getCookie } from 'cookies-next'
@@ -47,6 +47,14 @@ const Login: NextPage = () => {
         setSubmitting(false)
     }
 
+    // autofocus to username input
+    const inputElement = useRef<HTMLInputElement>(null);
+    useEffect(() => {
+        if(inputElement.current){
+            inputElement.current.focus();
+        }
+    }, []);
+
     return (
         <div className="bg-light min-vh-100 d-flex flex-row align-items-center dark:bg-transparent">
             <Container>
@@ -67,6 +75,7 @@ const Login: NextPage = () => {
                                                 />
                                             </InputGroup.Text>
                                             <Form.Control
+                                                ref={inputElement}
                                                 name="username"
                                                 required
                                                 disabled={submitting}
