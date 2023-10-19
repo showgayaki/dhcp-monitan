@@ -131,7 +131,7 @@ export default function SidebarNav() {
                 DHCP Logs
             </SidebarNavItem>
             <SidebarNavTitle>Config & Settings</SidebarNavTitle>
-            <SidebarNavItem icon={faGear} href="/confifg">
+            <SidebarNavItem icon={faGear} href="/config">
                 DHCP Config
             </SidebarNavItem>
             <SidebarNavItem icon={faPenToSquare} href="/settings">

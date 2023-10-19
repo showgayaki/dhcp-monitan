@@ -45,7 +45,14 @@ export default function middleware(request: NextRequest) {
 
     if ([
         '/',
+        '/api/networks',
+        '/api/clients',
+        '/api/config',
+        '/api/settings',
         '/leases',
+        '/log',
+        '/config',
+        '/settings',
     ].includes(request.nextUrl.pathname)) {
         return authenticated(request)
     }
