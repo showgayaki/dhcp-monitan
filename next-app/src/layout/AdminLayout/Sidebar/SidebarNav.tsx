@@ -127,7 +127,7 @@ export default function SidebarNav() {
             <SidebarNavItem icon={faTable} href="/leases">
                 Leases
             </SidebarNavItem>
-            <SidebarNavItem icon={faCode} href="/logs">
+            <SidebarNavItem icon={faCode} href="/log">
                 DHCP Logs
             </SidebarNavItem>
             <SidebarNavTitle>Config & Settings</SidebarNavTitle>

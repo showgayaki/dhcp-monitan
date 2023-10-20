@@ -35,6 +35,7 @@ const authenticated: Middleware = (request) => {
 }
 
 export default function middleware(request: NextRequest) {
+    const pageList = process.env.NEXT_PUBLIC_PAGE_LIST || ['']
     // Uncomment if you want to redirect if authenticated.
     if ([
         '/login',
@@ -43,17 +44,7 @@ export default function middleware(request: NextRequest) {
         return redirectIfAuthenticated(request)
     }
 
-    if ([
-        '/',
-        '/api/networks',
-        '/api/clients',
-        '/api/config',
-        '/api/settings',
-        '/leases',
-        '/log',
-        '/config',
-        '/settings',
-    ].includes(request.nextUrl.pathname)) {
+    if (pageList.includes(request.nextUrl.pathname)) {
         return authenticated(request)
     }
 
