@@ -20,14 +20,14 @@ services:
         NEXT_PUBLIC_API_LOCALE: ${NEXT_PUBLIC_API_LOCALE}
     volumes:
       - type: bind
-        source: ${NEXT_PUBLIC_DHCP_CONF_FILE_PATH}
-        target: ${NEXT_PUBLIC_DHCP_CONF_FILE_PATH}
+        source: /etc/dhcp/
+        target: /app/dhcp/conf/
       - type: bind
-        source: ${NEXT_PUBLIC_DHCP_LEASE_FILE_PATH}
-        target: ${NEXT_PUBLIC_DHCP_LEASE_FILE_PATH}
+        source: /var/lib/dhcpd/
+        target: /app/dhcp/leases/
       - type: bind
-        source: ${NEXT_PUBLIC_DHCP_LOG_FILE_PATH}
-        target: ${NEXT_PUBLIC_DHCP_LOG_FILE_PATH}
+        source: /var/log/
+        target: /app/dhcp/log/
     restart: always
     ports:
       - 3000:3000

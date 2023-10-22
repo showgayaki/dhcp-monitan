@@ -20,14 +20,14 @@ function MyApp({ Component, pageProps }: AppProps) {
     // https://react-bootstrap.github.io/getting-started/server-side-rendering/
     return (
         <>
-        <Head>
-            <title>DHCP Monitan</title>
-        </Head>
-        <SSRProvider>
-            <ProgressBar />
-            {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-            <Component {...pageProps} />
-        </SSRProvider>
+            <Head>
+                <title>DHCP Monitan</title>
+            </Head>
+            <SSRProvider>
+                <ProgressBar />
+                {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+                <Component {...pageProps} />
+            </SSRProvider>
         </>
     )
 }
