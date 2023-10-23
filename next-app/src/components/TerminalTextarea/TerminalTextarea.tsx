@@ -1,14 +1,14 @@
-import React, { useRef, UIEvent } from 'react'
+import React, { useRef } from 'react'
 import { Form } from 'react-bootstrap'
 
 
 type Props = {
     text: string;
-    rows: number;
 }
 
 export default function LogsTextarea(props: Props){
-    const { text, rows } = props
+    const { text } = props
+    const rows = text.split('\n').length
     const rowNumbers = Array.from(Array(rows).keys()).map(index => index + 1).join('\n')
 
     // 行数テキストエリアと、ログテキストを同時にスクロールする

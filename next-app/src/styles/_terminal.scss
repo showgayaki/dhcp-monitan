@@ -34,7 +34,7 @@
     }
 
     &__textarea{
-        overflow-x: hidden;
+        overflow-x: auto;
         @include teminal-base(#fff);
     }
 }

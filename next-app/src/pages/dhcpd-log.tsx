@@ -10,6 +10,7 @@ import { TerminalTextarea } from '@components/TerminalTextarea'
 const DhcpdLog: NextPage = () => {
     const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}dhcpd-log` || ''
     const [startRow, setStartRow] = useState(0)
+    const [log, setLog] = useState('')
 
     const [fallbackResource, setFallbackResource] = useState({
         startRow: startRow,
@@ -29,9 +30,13 @@ const DhcpdLog: NextPage = () => {
     })
 
     useEffect(() => {
+        if(resource.log !== ''){
+            setLog(log + resource.log)
+        }
         setStartRow(resource.startRow)
         setFallbackResource(resource)
-    }, [resource])
+
+    }, [resource.startRow])
 
     return (
         <AdminLayout>
@@ -44,7 +49,7 @@ const DhcpdLog: NextPage = () => {
                         <Button className='me-2' variant="primary">start</Button>
                         <Button variant="danger">stop</Button>
                     </div> */}
-                    <TerminalTextarea text={resource.log} rows={resource.log.split('\n').length} />
+                    <TerminalTextarea text={log} />
                 </Card.Body>
             </Card>
         </AdminLayout>
