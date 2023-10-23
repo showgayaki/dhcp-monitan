@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import { Button, Card } from 'react-bootstrap'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, MouseEvent } from 'react'
 import { AdminLayout } from '@layout'
 import { DhcpdLog } from '@models/dhcpd-log'
 import { transformResponseWrapper, useSWRAxios } from '@hooks'
@@ -9,17 +9,27 @@ import { TerminalTextarea } from '@components/TerminalTextarea'
 
 const DhcpdLog: NextPage = () => {
     const apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}dhcpd-log` || ''
-    const [startRow, setStartRow] = useState(0)
     const [log, setLog] = useState('')
-
     const [fallbackResource, setFallbackResource] = useState({
-        startRow: startRow,
+        startRow: 0,
         log: '',
     })
+
+    // ボタンの切り替え
+    const [disabled, setDisabled] = useState(false)
+    const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
+        setLog('')
+        if (event.currentTarget.innerHTML === 'Start') {
+            setDisabled(true)
+        } else {
+            setDisabled(false)
+        }
+    }
+
     const { data: { data: resource } } = useSWRAxios({
-        url: apiUrl,
+        url: disabled? apiUrl: undefined,
         params: {
-            startRow: startRow,
+            startRow: fallbackResource.startRow,
         },
         transformResponse: transformResponseWrapper((d: DhcpdLog) => {
             console.log(d)
@@ -30,12 +40,8 @@ const DhcpdLog: NextPage = () => {
     })
 
     useEffect(() => {
-        if(resource.log !== ''){
-            setLog(log + resource.log)
-        }
-        setStartRow(resource.startRow)
+        setLog(log + resource.log)
         setFallbackResource(resource)
-
     }, [resource.startRow])
 
     return (
@@ -45,10 +51,10 @@ const DhcpdLog: NextPage = () => {
                     DHCP Logs
                 </Card.Header>
                 <Card.Body>
-                    {/* <div className='d-flex mb-2'>
-                        <Button className='me-2' variant="primary">start</Button>
-                        <Button variant="danger">stop</Button>
-                    </div> */}
+                    <div className='d-flex mb-2'>
+                        <Button disabled={disabled} className='py-1 px-3 me-2' variant="primary" onClick={handleClick}>Start</Button>
+                        <Button disabled={!disabled} className='py-1 px-3' variant="danger" onClick={handleClick}>Stop</Button>
+                    </div>
                     <TerminalTextarea text={log} />
                 </Card.Body>
             </Card>

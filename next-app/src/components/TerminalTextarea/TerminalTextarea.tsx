@@ -36,7 +36,8 @@ export default function LogsTextarea(props: Props){
                 ref={rightElem}
                 className="terminal__textarea"
                 as="textarea"
-                readOnly wrap='off'
+                readOnly
+                wrap='off'
                 value={text}
                 rows={rows}
                 onScroll={() => {handleScroll(false)}}
