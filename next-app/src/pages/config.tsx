@@ -36,7 +36,7 @@ const Config: NextPage = () => {
                     DHCP Config
                 </Card.Header>
                 <Card.Body>
-                    <TerminalTextarea text={resource.config} rows={rows} />
+                    <TerminalTextarea text={resource.config} />
                 </Card.Body>
             </Card>
         </AdminLayout>
