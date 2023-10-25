@@ -1,5 +1,5 @@
 export interface Subnet {
-    location: number;
+    location: string;
     range: string;
     defined: number;
     used: number;
@@ -8,7 +8,7 @@ export interface Subnet {
 }
 
 export interface SharedNetwork {
-    location: number;
+    location: string;
     defined: number;
     used: number;
     touched: number;
@@ -16,7 +16,7 @@ export interface SharedNetwork {
 }
 
 export interface Summary {
-    location: number;
+    location: string;
     defined: number;
     used: number;
     touched: number;
@@ -26,6 +26,6 @@ export interface Summary {
 export interface Networks {
     subnets: Subnet[];
     sharedNetworks: SharedNetwork[];
-    summary: Summary[];
+    summary: Summary;
     vendor: {[key: string]: number};
 }

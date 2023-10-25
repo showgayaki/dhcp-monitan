@@ -12,16 +12,30 @@ import {
     PointElement,
     Tooltip,
 } from 'chart.js'
-import React, { useEffect, useState } from 'react'
+import 'chartjs-adapter-date-fns'
+import React, { useEffect, useState, memo } from 'react'
 import { AdminLayout } from '@layout'
 import { Networks } from '@models/networks'
+import { RealtimeLineChart } from '@components/RealtimeLineChart'
 import { SharedNetworkTable, SubnetTable } from '@components/NetworkTable'
 import { VendorTable } from '@components/VendorTable'
 import { VendorChart } from '@components/VendorChart'
 import { transformResponseWrapper, useSWRAxios } from '@hooks'
+import StreamingPlugin from 'chartjs-plugin-streaming'
 
 
-Chart.register(ArcElement, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Legend, Tooltip, Filler)
+Chart.register(
+    ArcElement,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    BarElement,
+    Legend,
+    Tooltip,
+    Filler,
+    StreamingPlugin
+)
 
 const Home: NextPage = () => {
     const networksUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}networks` || ''
@@ -30,7 +44,13 @@ const Home: NextPage = () => {
         {
             subnets: [],
             sharedNetworks: [],
-            summary: [],
+            summary: {
+                location: '',
+                defined: 0,
+                used: 0,
+                touched: 0,
+                free: 0,
+            },
             vendor: {},
         }
     )
@@ -42,9 +62,6 @@ const Home: NextPage = () => {
         }),
     }, {
         data: fallbackResource,
-        headers: {
-            'x-total-count': '0',
-        },
     })
 
     useEffect(() => {
@@ -53,6 +70,18 @@ const Home: NextPage = () => {
 
     return (
         <AdminLayout>
+            <div className='row'>
+                <div className="col-12 mb-3">
+                    <Card>
+                        <Card.Header>
+                            Realtime Clients
+                        </Card.Header>
+                        <Card.Body>
+                            <RealtimeLineChart subnetList={resource.subnets} />
+                        </Card.Body>
+                    </Card>
+                </div>
+            </div>
             <div className="row">
                 <div className="col-md-6 mb-3">
                     <Card>

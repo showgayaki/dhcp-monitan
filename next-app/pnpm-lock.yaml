@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
@@ -35,6 +35,12 @@ dependencies:
   chart.js:
     specifier: ^3.9.1
     version: 3.9.1
+  chartjs-adapter-date-fns:
+    specifier: ^2.0.1
+    version: 2.0.1(chart.js@3.9.1)
+  chartjs-plugin-streaming:
+    specifier: ^2.0.0
+    version: 2.0.0(chart.js@3.9.1)
   classnames:
     specifier: ^2.3.2
     version: 2.3.2
@@ -44,6 +50,9 @@ dependencies:
   cookies-next:
     specifier: ^2.1.2
     version: 2.1.2
+  date-fns:
+    specifier: ^2.30.0
+    version: 2.30.0
   next:
     specifier: ^13.4.18
     version: 13.4.18(react-dom@18.2.0)(react@18.2.0)(sass@1.66.0)
@@ -944,6 +953,22 @@ packages:
     resolution: {integrity: sha512-Ro2JbLmvg83gXF5F4sniaQ+lTbSv18E+TIf2cOeiH1Iqd2PGFOtem+DUufMZsCJwFE7ywPOpfXFBwRTGq7dh6w==}
     dev: false
 
+  /chartjs-adapter-date-fns@2.0.1(chart.js@3.9.1):
+    resolution: {integrity: sha512-v3WV9rdnQ05ce3A0ZCjzUekJCAbfm6+3HqSoeY2BIkdMYZoYr/4T+ril1tZyDl869lz6xdNVMXejUFT9YKpw4A==}
+    peerDependencies:
+      chart.js: '>=2.8.0'
+    dependencies:
+      chart.js: 3.9.1
+    dev: false
+
+  /chartjs-plugin-streaming@2.0.0(chart.js@3.9.1):
+    resolution: {integrity: sha512-oBwHRmovGbPDS1h8PhpttnlKjI6eiJO13v4h+xz+mfbHhIc+iNF9xuMobCIFMKFH7rlVWi5TJAOIxoXyGElYYg==}
+    peerDependencies:
+      chart.js: ^3.0.0
+    dependencies:
+      chart.js: 3.9.1
+    dev: false
+
   /chokidar@3.5.3:
     resolution: {integrity: sha512-Dr3sfKRP6oTcjf2JmUmFJfeVMvXBdegxB0iVQ5eb2V10uFJUCAS8OByZdVAyVb8xXNz3GjjTgj9kLWsZTqE6kw==}
     engines: {node: '>= 8.10.0'}
@@ -1083,6 +1108,13 @@ packages:
   /damerau-levenshtein@1.0.8:
     resolution: {integrity: sha512-sdQSFB7+llfUcQHUQO3+B8ERRj0Oa4w9POWMI/puGtuf7gFywGmkaLCElnudfTiKZV+NvHqL0ifzdrI8Ro7ESA==}
     dev: true
+
+  /date-fns@2.30.0:
+    resolution: {integrity: sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==}
+    engines: {node: '>=0.11'}
+    dependencies:
+      '@babel/runtime': 7.22.10
+    dev: false
 
   /debug@2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
