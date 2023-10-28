@@ -13,7 +13,7 @@ import {
     Tooltip,
 } from 'chart.js'
 import 'chartjs-adapter-date-fns'
-import React, { useEffect, useState, memo } from 'react'
+import React, { useEffect, useState } from 'react'
 import { AdminLayout } from '@layout'
 import { Networks } from '@models/networks'
 import { RealtimeLineChart } from '@components/RealtimeLineChart'
@@ -54,10 +54,10 @@ const Home: NextPage = () => {
             vendor: {},
         }
     )
-    const { data: { data: resource } } = useSWRAxios<Networks>({
+    const { data: { data: resource }, isLoading } = useSWRAxios<Networks>({
         url: networksUrl,
         transformResponse: transformResponseWrapper((d: Networks) => {
-            console.log(d)
+            console.log('transformResponse:', d)
             return d
         }),
     }, {
@@ -68,66 +68,68 @@ const Home: NextPage = () => {
         setFallbackResource(resource)
     }, [resource])
 
-    return (
-        <AdminLayout>
-            <div className='row'>
-                <div className="col-12 mb-3">
-                    <Card>
-                        <Card.Header>
-                            Realtime Clients
-                        </Card.Header>
-                        <Card.Body>
-                            <RealtimeLineChart subnetList={resource.subnets} />
-                        </Card.Body>
-                    </Card>
+    if(!isLoading){
+        return (
+            <AdminLayout>
+                <div className='row'>
+                    <div className="col-12 mb-3">
+                        <Card>
+                            <Card.Header>
+                                Realtime Clients
+                            </Card.Header>
+                            <Card.Body>
+                                <RealtimeLineChart subnetList={resource.subnets} />
+                            </Card.Body>
+                        </Card>
+                    </div>
                 </div>
-            </div>
-            <div className="row">
-                <div className="col-md-6 mb-3">
-                    <Card>
-                        <Card.Header>
-                            Shared Networks
-                        </Card.Header>
-                        <Card.Body>
-                            <SharedNetworkTable sharedNetworks={resource.sharedNetworks} />
-                        </Card.Body>
-                    </Card>
+                <div className="row">
+                    <div className="col-md-6 mb-3">
+                        <Card>
+                            <Card.Header>
+                                Shared Networks
+                            </Card.Header>
+                            <Card.Body>
+                                <SharedNetworkTable sharedNetworks={resource.sharedNetworks} />
+                            </Card.Body>
+                        </Card>
+                    </div>
+                    <div className="col-md-6 mb-3">
+                        <Card>
+                            <Card.Header>
+                                Subnets
+                            </Card.Header>
+                            <Card.Body>
+                                <SubnetTable subnet={resource.subnets} />
+                            </Card.Body>
+                        </Card>
+                    </div>
                 </div>
-                <div className="col-md-6 mb-3">
-                    <Card>
-                        <Card.Header>
-                            Subnets
-                        </Card.Header>
-                        <Card.Body>
-                            <SubnetTable subnet={resource.subnets} />
-                        </Card.Body>
-                    </Card>
+                <div className="row">
+                    <div className="col-md-6 mb-3">
+                        <Card>
+                            <Card.Header>
+                                Vendor List Count
+                            </Card.Header>
+                            <Card.Body>
+                                <VendorTable vendor={resource.vendor} />
+                            </Card.Body>
+                        </Card>
+                    </div>
+                    <div className="col-md-6 mb-3">
+                        <Card>
+                            <Card.Header>
+                                Vendor Chart
+                            </Card.Header>
+                            <Card.Body>
+                                <VendorChart vendor={resource.vendor} />
+                            </Card.Body>
+                        </Card>
+                    </div>
                 </div>
-            </div>
-            <div className="row">
-                <div className="col-md-6 mb-3">
-                    <Card>
-                        <Card.Header>
-                            Vendor List Count
-                        </Card.Header>
-                        <Card.Body>
-                            <VendorTable vendor={resource.vendor} />
-                        </Card.Body>
-                    </Card>
-                </div>
-                <div className="col-md-6 mb-3">
-                    <Card>
-                        <Card.Header>
-                            Vendor Chart
-                        </Card.Header>
-                        <Card.Body>
-                            <VendorChart vendor={resource.vendor} />
-                        </Card.Body>
-                    </Card>
-                </div>
-            </div>
-        </AdminLayout>
-    )
+            </AdminLayout>
+        )
+    }
 }
 
 export default Home

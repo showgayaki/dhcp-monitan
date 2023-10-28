@@ -1,5 +1,4 @@
-import React, { memo } from 'react'
-import { ChartDataset, ScatterDataPoint, BubbleDataPoint } from 'chart.js'
+import React, { useMemo } from 'react'
 import { Line } from 'react-chartjs-2'
 import { ja } from 'date-fns/locale'
 import { Subnet } from '@models/networks'
@@ -13,8 +12,8 @@ type subnetProps = {
 export default function RealtimeLineChart(props: subnetProps) {
     const { subnetList } = props
 
-    const datasets: ChartDataset<'line', (number | ScatterDataPoint | BubbleDataPoint | null)[]>[] = (
-        subnetList.map((subnet, index) =>{
+    const datasets = (subnets: Subnet[]) => (
+        subnets.map((subnet, index) => {
             return {
                 label: subnet.location,
                 borderColor: ColorList[index],
@@ -23,11 +22,10 @@ export default function RealtimeLineChart(props: subnetProps) {
             }
         })
     )
-
-    return (
+    const chart = (
         <Line
             data={{
-                datasets: datasets,
+                datasets: datasets(subnetList),
             }}
             options={{
                 scales: {
@@ -43,16 +41,16 @@ export default function RealtimeLineChart(props: subnetProps) {
                         },
                         realtime: {
                             duration: 50000,
-                            delay: 3000,
-                            refresh: 3000,
+                            delay: 0,
+                            refresh: Number(process.env.NEXT_PUBLIC_API_RETRY_INTERVAL_IN_SECONDS) * 1000,
                             pause: false,
                             ttl: undefined,
                             onRefresh: (chart) => {
-                                const now = Date.now()
                                 chart.data.datasets.map((dataset, index) => {
                                     dataset.data.push({
-                                        x: now,
+                                        x: Date.now(),
                                         y: subnetList[index].used,
+                                        // y: Math.random(),
                                     })
                                 })
                             },
@@ -74,4 +72,6 @@ export default function RealtimeLineChart(props: subnetProps) {
             }}
         />
     )
+
+    return useMemo(() => chart, [])
 }
