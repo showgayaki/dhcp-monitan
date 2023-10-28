@@ -26,7 +26,7 @@ export default function VendorChart(props: Props) {
             hoverOffset: 4
         }]
     }
-    const options: ChartOptions = {
+    const options: ChartOptions<'doughnut'> = {
         responsive: true,
         plugins: {
             legend: {
