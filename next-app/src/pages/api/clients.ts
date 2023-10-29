@@ -51,11 +51,11 @@ function staticLeaseStartTime(ipAddress: string, macAddress: string){
     const leaseDateObject = new Date(outputSplitted.join(' '))
 
     // RSYSLOG_TraditionalFileFormatの場合は、年が取れない(2001年になる)ので「月日 時間」にしておく
-    const leaseDate = (locale: string) => (leaseDateObject.getFullYear() === 2001)?
-        leaseDateObject.toLocaleString(locale).replace('2001/', ''):
+    const leaseDate = () => (leaseDateObject.getFullYear() === 2001)?
+        leaseDateObject.toLocaleString(process.env.NEXT_PUBLIC_API_LOCALE, {timeZone: process.env.NEXT_PUBLIC_API_TZ}).replace('2001/', ''):
         leaseDateObject.toLocaleString(process.env.NEXT_PUBLIC_API_LOCALE, {timeZone: process.env.NEXT_PUBLIC_API_TZ})
 
-    return (Number.isNaN(leaseDateObject.getTime()))? 'N/A': leaseDate(process.env.NEXT_PUBLIC_API_LOCALE ?? '')
+    return (Number.isNaN(leaseDateObject.getTime()))? 'N/A': leaseDate()
 }
 
 
