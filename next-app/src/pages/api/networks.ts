@@ -1,6 +1,7 @@
 import { execSync } from 'child_process'
 import fs from 'fs'
 import { macAddressToVendor } from '@features/MacAddress'
+import { subnetmask2cidr } from '@features/IpAddress'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 
@@ -12,6 +13,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     response.sharedNetworks = response['shared-networks']
     delete response['shared-networks']
 
+    /* --------------
+      Vendorのカウント
+    -------------- */
     const vendorCount: {[key: string]: number} = {}
     const leases = fs.readFileSync(`${process.env.NEXT_PUBLIC_DHCP_LEASE_FILE_PATH}`, 'utf-8')
     const clientLines = leases.split('\n')
@@ -62,6 +66,26 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     }
 
     response['vendor'] = sortedVendorCount
+
+    /* --------------
+      CIDR取得
+    -------------- */
+    const conf = fs.readFileSync(`${process.env.NEXT_PUBLIC_DHCP_CONF_FILE_PATH}`, 'utf-8')
+    const lines = conf.split('\n')
+    const linesLength = lines.length
+    const sunetLength = response.subnets.length
+
+    // 「subnet 192.168.1.0 netmask 255.255.255.0{」から「255.255.255.0」を取り出してCIDRにする
+    for(let i = 0; i < sunetLength; i += 1){
+        for(let j = 0; j < linesLength; j += 1){
+            const reg = new RegExp(`subnet ${response.subnets[i].location} netmask`)
+            if(reg.test(lines[j])){
+                const netmask = lines[j].split(' ').splice(-1)[0].replace('{', '')
+                response.subnets[i].cidr = subnetmask2cidr(netmask)
+                break
+            }
+        }
+    }
 
     res.status(200)
         .json(response)

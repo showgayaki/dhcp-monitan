@@ -91,7 +91,7 @@ export function SubnetTable(props: subnetProps) {
                 {subnet.map((network, index) => (
                     <tr key={index} className="align-middle">
                         <td>
-                            {network.location}
+                            {network.location}/{network.cidr}
                         </td>
                         <td>
                             {network.range}

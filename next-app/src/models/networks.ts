@@ -5,6 +5,7 @@ export interface Subnet {
     used: number;
     touched: number;
     free: number;
+    cidr: number;
 }
 
 export interface SharedNetwork {

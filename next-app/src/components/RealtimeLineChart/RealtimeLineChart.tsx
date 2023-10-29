@@ -15,7 +15,7 @@ export default function RealtimeLineChart(props: subnetProps) {
     const datasets = (subnets: Subnet[]) => (
         subnets.map((subnet, index) => {
             return {
-                label: subnet.location,
+                label: `${subnet.location}/${subnet.cidr}`,
                 borderColor: ColorList[index],
                 backgroundColor: ColorList[index],
                 data: [],
