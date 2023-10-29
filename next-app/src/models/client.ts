@@ -10,6 +10,7 @@ export interface Client{
 export interface ClientList{
     network_address: string;
     netmask: string;
+    cidr: number;
     static: Client[];
     dynamic: Client[];
 }

@@ -1,12 +1,14 @@
 import { execSync } from 'child_process'
 import fs from 'fs'
-import { macAddressToVendor } from '@features/parseClient'
+import { macAddressToVendor } from '@features/MacAddress'
+import { ip2long, subnetmask2cidr, verifyInRange } from '@features/IpAddress'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 
 type Client = {
     network_address: string;
     netmask: string;
+    cidr: number;
     static: StaticClient[];
     dynamic: DynamicClient[];
 }
@@ -55,15 +57,7 @@ function staticLeaseStartTime(ipAddress: string, macAddress: string){
 }
 
 
-function dynamicClientList(network_address: string, netmask: string){
-    const ip2bin = (ip: string) => ip.split('.').map(e => Number(e).toString(2).padStart(8, '0')).join('')
-    const ip2long = (ip: string) => parseInt(ip2bin(ip), 2)
-    const subnetmask2cidr = (ip: string) => ip2bin(ip).split('1').length - 1
-    const verifyInRange = (remoteIp: number, acceptIp: number, cidr: number) => {
-        const remoteIpNetwork = remoteIp >>> (32 - cidr)
-        const acceptIpNetwork = acceptIp >>> (32 - cidr)
-        return remoteIpNetwork === acceptIpNetwork
-    }
+function dynamicClientList(network_address: string, netmask: string, cidr: number){
     // new Date()がGMTなので、「2023-01-01T00:00:00.000Z」表記にする
     // リース終了時間が、未来の時間になっているか検証するため
     const datetime = (str: string) => str.split(' ').slice(-2).join('T').replace(/\//g, '-') + 'Z'
@@ -92,7 +86,8 @@ function dynamicClientList(network_address: string, netmask: string){
             const line = clientLines[j].trim().replace(';', '')
             if(j === 0){
                 const ipAddress = line.replace('{', '').trim()
-                inRange = verifyInRange(ip2long(network_address), ip2long(ipAddress), subnetmask2cidr(netmask))
+                inRange = verifyInRange(ip2long(network_address), ip2long(ipAddress), cidr)
+
                 if(!inRange){
                     break
                 }
@@ -177,6 +172,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         const client: Client = {
             network_address: '',
             netmask: '',
+            cidr: 0,
             static: [],
             dynamic: [],
         }
@@ -194,9 +190,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
             if(/netmask/.test(line)){
                 client.network_address = line.split(' ')[0]
                 client.netmask = line.split(' ').slice(-1)[0].replace('{', '')
+                client.cidr = subnetmask2cidr(client.netmask)
 
-                const dynamic = dynamicClientList(client.network_address, client.netmask)
-                client.dynamic = dynamicClientList(client.network_address, client.netmask)
+                client.dynamic = dynamicClientList(client.network_address, client.netmask, client.cidr)
                 continue
             }
 

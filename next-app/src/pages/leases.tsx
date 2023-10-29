@@ -15,11 +15,12 @@ const Leases: NextPage = () => {
         [{
             network_address: '',
             netmask: '',
+            cidr: 0,
             static: [],
             dynamic: [],
         }]
     )
-    const { data: { data: resource } } = useSWRAxios<ClientList[]>({
+    const { data: { data: resource }, isLoading } = useSWRAxios<ClientList[]>({
         url: networksUrl,
         transformResponse: transformResponseWrapper((d: ClientList[]) => {
             const now = new Date();
@@ -29,9 +30,6 @@ const Leases: NextPage = () => {
         }),
     }, {
         data: fallbackResource,
-        headers: {
-            'x-total-count': '0',
-        },
     })
 
     useEffect(() => {
@@ -43,7 +41,12 @@ const Leases: NextPage = () => {
             <Tabs className='text-decoration-none'>
                 {resource.map((network, index) => {
                     return (
-                        <Tab key={index} eventKey={network.network_address} title={network.network_address} className='py-3 px-2'>
+                        <Tab
+                            key={index}
+                            eventKey={network.network_address}
+                            title={isLoading? 'Loading...': `${network.network_address}/${network.cidr}`}
+                            className='py-3 px-2'
+                        >
                             <p className='fs-7'>As of: {date}</p>
                             <div className="row">
                                 <div className="col-md-12 mb-3">

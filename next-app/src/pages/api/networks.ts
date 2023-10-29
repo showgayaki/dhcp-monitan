@@ -1,6 +1,6 @@
 import { execSync } from 'child_process'
 import fs from 'fs'
-import { macAddressToVendor } from '@features/parseClient'
+import { macAddressToVendor } from '@features/MacAddress'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 
