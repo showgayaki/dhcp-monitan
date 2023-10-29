@@ -22,6 +22,23 @@ export default function RealtimeLineChart(props: subnetProps) {
             }
         })
     )
+
+    const plugin = {
+        id: "increase-legend-spacing",
+        beforeInit(chart: any) {
+            // Get reference to the original fit function
+            const originalFit = chart.legend.fit
+
+            // Override the fit function
+            chart.legend.fit = function fit() {
+                // Call original function and bind scope in order to use `this` correctly inside it
+                originalFit.bind(chart.legend)()
+                // Change the height as suggested in another answers
+                this.height += 20
+            }
+        }
+    }
+
     const chart = (
         <Line
             data={{
@@ -41,7 +58,7 @@ export default function RealtimeLineChart(props: subnetProps) {
                         },
                         realtime: {
                             duration: 50000,
-                            delay: 0,
+                            delay: 500,
                             refresh: Number(process.env.NEXT_PUBLIC_API_RETRY_INTERVAL_IN_SECONDS) * 1000,
                             pause: false,
                             ttl: undefined,
@@ -63,13 +80,15 @@ export default function RealtimeLineChart(props: subnetProps) {
                 },
                 plugins: {
                     legend: {
-                        display: false,
+                        display: true,
+                        align: 'start',
                     },
                     tooltip: {
                         enabled: true,
                     },
                 },
             }}
+            plugins={[plugin]}
         />
     )
 

@@ -74,10 +74,8 @@ const Home: NextPage = () => {
                 <div className='row'>
                     <div className="col-12 mb-3">
                         <Card>
-                            <Card.Header>
-                                Realtime Clients
-                            </Card.Header>
                             <Card.Body>
+                                <h4 className='mb-4'>Realtime Client Count</h4>
                                 <RealtimeLineChart subnetList={resource.subnets} />
                             </Card.Body>
                         </Card>
@@ -85,7 +83,7 @@ const Home: NextPage = () => {
                 </div>
                 <div className="row">
                     <div className="col-md-6 mb-3">
-                        <Card>
+                        <Card className='h-100'>
                             <Card.Header>
                                 Shared Networks
                             </Card.Header>
@@ -95,7 +93,7 @@ const Home: NextPage = () => {
                         </Card>
                     </div>
                     <div className="col-md-6 mb-3">
-                        <Card>
+                        <Card className='h-100'>
                             <Card.Header>
                                 Subnets
                             </Card.Header>
@@ -107,7 +105,7 @@ const Home: NextPage = () => {
                 </div>
                 <div className="row">
                     <div className="col-md-6 mb-3">
-                        <Card>
+                        <Card className='h-100'>
                             <Card.Header>
                                 Vendor List Count
                             </Card.Header>
@@ -117,7 +115,7 @@ const Home: NextPage = () => {
                         </Card>
                     </div>
                     <div className="col-md-6 mb-3">
-                        <Card>
+                        <Card className='h-100'>
                             <Card.Header>
                                 Vendor Chart
                             </Card.Header>

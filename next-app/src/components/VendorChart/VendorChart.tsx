@@ -28,6 +28,7 @@ export default function VendorChart(props: Props) {
     }
     const options: ChartOptions<'doughnut'> = {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
             legend: {
                 position: 'right',
