@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Toast, ToastContainer } from 'react-bootstrap/'
+import { Toast, ToastContainer } from 'react-bootstrap'
 
 type Props = {
     show: boolean;
@@ -24,11 +24,6 @@ export function AutoHideToast(props: Props){
         >
             <Toast onClose={() => setShowToast(false)} show={showToast} delay={3000} bg={bg} autohide>
                 <Toast.Header>
-                    <img
-                        src="holder.js/20x20?text=%20"
-                        className="rounded me-2"
-                        alt=""
-                    />
                     <strong className="me-auto">{title}</strong>
                 </Toast.Header>
                 <Toast.Body>

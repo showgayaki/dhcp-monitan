@@ -54,7 +54,10 @@ export default function RealtimeLineChart(props: subnetProps) {
                             },
                         },
                         time: {
-                            unit: 'second',
+                            displayFormats: {
+                              'second': 'HH:mm:ss',
+                              'minute': 'HH:mm:ss',
+                            },
                         },
                         realtime: {
                             duration: 50000,
