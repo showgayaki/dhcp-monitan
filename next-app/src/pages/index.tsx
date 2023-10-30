@@ -68,7 +68,13 @@ const Home: NextPage = () => {
         setFallbackResource(resource)
     }, [resource])
 
-    if(!isLoading){
+    if(isLoading){
+        return (
+            <AdminLayout>
+            </AdminLayout>
+        )
+    }
+    else{
         return (
             <AdminLayout>
                 <div className='row'>

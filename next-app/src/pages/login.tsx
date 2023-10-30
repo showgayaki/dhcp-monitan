@@ -10,11 +10,13 @@ import { SyntheticEvent, useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import axios from 'axios'
 import { deleteCookie, getCookie } from 'cookies-next'
+import { AutoHideToast } from '@components/Toast'
 
 
 const Login: NextPage = () => {
     const router = useRouter()
     const [submitting, setSubmitting] = useState(false)
+    const [showToast, setShowToast] = useState(false)
 
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
@@ -42,7 +44,11 @@ const Login: NextPage = () => {
 
         const res = await axios.post('api/mock/login', inputData)
         if (res.status === 200) {
-            router.push(getRedirect())
+            if(res.data.login){
+                router.push(getRedirect())
+            }else{
+                setShowToast(true)
+            }
         }
         setSubmitting(false)
     }
@@ -51,7 +57,7 @@ const Login: NextPage = () => {
     const inputElement = useRef<HTMLInputElement>(null);
     useEffect(() => {
         if(inputElement.current){
-            inputElement.current.focus();
+            inputElement.current.focus()
         }
     }, []);
 
@@ -61,7 +67,7 @@ const Login: NextPage = () => {
                 <Row className="justify-content-center align-items-center px-3">
                     <Col lg={8}>
                         <Row>
-                            <Col md={7} className="bg-white border p-5">
+                            <Col md={7} className="position-relative bg-white border p-5">
                                 <div className="">
                                     <h1>Login</h1>
                                     <p className="text-black-50">Sign In to your account</p>
@@ -81,7 +87,12 @@ const Login: NextPage = () => {
                                                 disabled={submitting}
                                                 placeholder="Username"
                                                 aria-label="Username"
-                                                onChange={(e) => setUsername(e.target.value)}
+                                                onChange={
+                                                    (e) => {
+                                                        setUsername(e.target.value)
+                                                        setShowToast(false)
+                                                    }
+                                                }
                                             />
                                         </InputGroup>
 
@@ -99,7 +110,12 @@ const Login: NextPage = () => {
                                                 disabled={submitting}
                                                 placeholder="Password"
                                                 aria-label="Password"
-                                                onChange={(e) => setPassword(e.target.value)}
+                                                onChange={
+                                                    (e) => {
+                                                        setPassword(e.target.value)
+                                                        setShowToast(false)
+                                                    }
+                                                }
                                             />
                                         </InputGroup>
 
@@ -116,6 +132,12 @@ const Login: NextPage = () => {
                                         </Row>
                                     </form>
                                 </div>
+                                <AutoHideToast
+                                    show={showToast}
+                                    title='Login FAILED!'
+                                    body='Invalid username or password.'
+                                    bg='warning'
+                                />
                             </Col>
                             <Col
                                 md={5}
