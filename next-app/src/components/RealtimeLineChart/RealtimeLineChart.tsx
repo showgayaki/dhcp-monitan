@@ -81,6 +81,7 @@ export default function RealtimeLineChart(props: subnetProps) {
                         // max: 100,
                     },
                 },
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         display: true,

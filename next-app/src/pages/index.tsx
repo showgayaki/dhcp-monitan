@@ -82,7 +82,9 @@ const Home: NextPage = () => {
                         <Card>
                             <Card.Body>
                                 <h4 className='mb-4'>Realtime Client Count</h4>
-                                <RealtimeLineChart subnetList={resource.subnets} />
+                                <div className='realtime-client-count'>
+                                    <RealtimeLineChart subnetList={resource.subnets} />
+                                </div>
                             </Card.Body>
                         </Card>
                     </div>
