@@ -31,10 +31,7 @@ export default function Header(props: HeaderProps) {
                     <FontAwesomeIcon icon={faBars} />
                 </Button>
                 <Link href="/" className="header-brand d-md-none">
-                    <svg width="80" height="46">
-                        <title>CoreUI Logo</title>
-                        <use xlinkHref="/assets/brand/coreui.svg#full" />
-                    </svg>
+                    <img className='w-50' src="/assets/brand/monitan--inversion.png" alt="" />
                 </Link>
             </Container>
         </header>
