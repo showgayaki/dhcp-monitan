@@ -2,8 +2,8 @@ FROM node:20-slim
 
 ENV NODE_ENV=development
 
-RUN apt-get update \
-&& apt-get -qq install -y --no-install-recommends dhcpd-pools \
+RUN apt-get update -y \
+&& apt-get -qq install -y --no-install-recommends dhcpd-pools procps \
 && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
