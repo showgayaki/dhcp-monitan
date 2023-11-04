@@ -1,27 +1,47 @@
 import React, { useMemo } from 'react'
 import { Line } from 'react-chartjs-2'
 import { ja } from 'date-fns/locale'
+import { Usage } from '@models/server-usage'
 import { Subnet } from '@models/networks'
 import { ColorList } from '@components/ColorList'
 
 
-type subnetProps = {
-    subnetList: Subnet[];
+type Props = {
+    data: Subnet[] | Usage;
 }
 
-export default function RealtimeLineChart(props: subnetProps) {
-    const { subnetList } = props
+export default function RealtimeLineChart(props: Props) {
+    const { data } = props
+    const verifyDataType = (data: any): data is Subnet[] => {
+        // Subnet[]型に強制キャストしてlengthプロパティがあればSubnet[]型とする
+        return !!(data as Subnet[])?.length
+    }
+    const isSubnetList = verifyDataType(data)
 
-    const datasets = (subnets: Subnet[]) => (
-        subnets.map((subnet, index) => {
-            return {
-                label: `${subnet.location}/${subnet.cidr}`,
-                borderColor: ColorList[index],
-                backgroundColor: ColorList[index],
+    const datasets = () => {
+        if(isSubnetList){
+            return (
+                data.map((subnet, index) => {
+                    return {
+                        label: `${subnet.location}/${subnet.cidr}`,
+                        borderColor: ColorList[index],
+                        backgroundColor: ColorList[index],
+                        data: [],
+                    }
+                }
+                )
+            )
+        }else{
+            return [{
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                borderWidth: 1,
+                fill: true,
+                lineTension: 1,
                 data: [],
-            }
-        })
-    )
+            }]
+        }
+    }
 
     const plugin = {
         id: "increase-legend-spacing",
@@ -42,7 +62,7 @@ export default function RealtimeLineChart(props: subnetProps) {
     const chart = (
         <Line
             data={{
-                datasets: datasets(subnetList),
+                datasets: datasets(),
             }}
             options={{
                 scales: {
@@ -55,8 +75,8 @@ export default function RealtimeLineChart(props: subnetProps) {
                         },
                         time: {
                             displayFormats: {
-                              'second': 'HH:mm:ss',
-                              'minute': 'HH:mm:ss',
+                                'second': 'HH:mm:ss',
+                                'minute': 'HH:mm:ss',
                             },
                         },
                         realtime: {
@@ -66,25 +86,34 @@ export default function RealtimeLineChart(props: subnetProps) {
                             pause: false,
                             ttl: undefined,
                             onRefresh: (chart) => {
-                                chart.data.datasets.map((dataset, index) => {
-                                    dataset.data.push({
-                                        x: Date.now(),
-                                        y: subnetList[index].used,
-                                        // y: Math.random(),
+                                if(isSubnetList){
+                                    chart.data.datasets.map((dataset, index) => {
+                                        dataset.data.push({
+                                            x: Date.now(),
+                                            y: data[index].used,
+                                        })
                                     })
-                                })
+                                }else{
+                                    console.log('realtimechart:', data.usage)
+                                    chart.data.datasets.map((dataset, index) => {
+                                        dataset.data.push({
+                                            x: Date.now(),
+                                            y: data.usage,
+                                        })
+                                    })
+                                }
                             },
                         },
                     },
                     y: {
                         min: 0,
-                        // max: 100,
+                        max: (isSubnetList)? undefined: data.yMax,
                     },
                 },
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        display: true,
+                        display: isSubnetList,
                         align: 'start',
                     },
                     tooltip: {
@@ -96,5 +125,31 @@ export default function RealtimeLineChart(props: subnetProps) {
         />
     )
 
+    if(!isSubnetList){
+        ['x', 'y'].map((axis) => {
+            // y軸にはタイトル(単位)表示
+            chart.props.options.scales[axis].title = (axis === 'y')?{
+                display: true,
+                color: 'rgba(255, 255, 255, 0.8)',
+                text: data.unit,
+            }: undefined
+
+            // drawBorder： trueをx, y両軸に設定するとy = 0の線が
+            // 二重に描かれているようなので、y軸の時にみtrueにする
+            chart.props.options.scales[axis].grid = {
+                drawBorder: (axis === 'y')? true: false,
+                color: 'rgba(255, 255, 255, 0.5)',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+            }
+            chart.props.options.scales[axis].ticks = {
+                color: 'rgba(255, 255, 255, 0.8)',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+            }
+        })
+
+        chart.props.options.radius = 0
+    }
+
+    // return chart
     return useMemo(() => chart, [])
 }

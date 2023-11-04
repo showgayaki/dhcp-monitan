@@ -15,6 +15,7 @@ import {
 import 'chartjs-adapter-date-fns'
 import React, { useEffect, useState } from 'react'
 import { AdminLayout } from '@layout'
+import { ServerUsage } from '@models/server-usage'
 import { Networks } from '@models/networks'
 import { RealtimeLineChart } from '@components/RealtimeLineChart'
 import { SharedNetworkTable, SubnetTable } from '@components/NetworkTable'
@@ -38,9 +39,32 @@ Chart.register(
 )
 
 const Home: NextPage = () => {
-    const networksUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}networks` || ''
+    /*
+     Server Usage
+     */
+    const serverUsageList = ['CPU', 'Memory', 'Disk']
+    const serverUsageUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}server-usage` || ''
+    const [usage, setUsage] = useState({})
+    const { data: { data: serverUsage }, isLoading: isServerUsageLoading, mutate: serverUsageMutate } = useSWRAxios<ServerUsage>({
+        url: serverUsageUrl,
+        transformResponse: transformResponseWrapper((d: ServerUsage) => {
+            console.log('ServerUsage:', d)
+            return d
+        }),
+    }, {
+        data: usage,
+    })
 
-    const [fallbackResource, setFallbackResource] = useState<Networks>(
+    useEffect(() => {
+        setUsage(serverUsage)
+    }, [serverUsage])
+
+
+    /*
+     Networks
+     */
+    const networksUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}networks` || ''
+    const [networks, setNetworks] = useState<Networks>(
         {
             subnets: [],
             sharedNetworks: [],
@@ -54,21 +78,24 @@ const Home: NextPage = () => {
             vendor: {},
         }
     )
-    const { data: { data: resource }, isLoading } = useSWRAxios<Networks>({
+    const { data: { data: networkStats }, isLoading: isNetworkLoading } = useSWRAxios<Networks>({
         url: networksUrl,
         transformResponse: transformResponseWrapper((d: Networks) => {
-            console.log('transformResponse:', d)
+            console.log('Networks:', d)
             return d
         }),
     }, {
-        data: fallbackResource,
+        data: networks,
     })
 
     useEffect(() => {
-        setFallbackResource(resource)
-    }, [resource])
+        setNetworks(networkStats)
+    }, [networkStats])
 
-    if(isLoading){
+    /*
+     Rendering
+     */
+    if(isServerUsageLoading || isNetworkLoading){
         return (
             <AdminLayout>
             </AdminLayout>
@@ -77,13 +104,35 @@ const Home: NextPage = () => {
     else{
         return (
             <AdminLayout>
+                <div className='row server-usage'>
+                    {serverUsageList.map((item, index) => {
+                        const itemLowerCase = item.toLowerCase()
+                        const percentage = (serverUsage[itemLowerCase].usage / serverUsage[itemLowerCase].yMax) * 100
+
+                        return (
+                            <div key={index} className={`col-md-${12 / serverUsageList.length} mb-3`}>
+                                <Card className={`server-usage__card server-usage__card--${itemLowerCase}`}>
+                                    <Card.Body>
+                                        <h4 className='mb-0'>{item}</h4>
+                                        <small>{percentage.toFixed(1)}%</small>
+                                        <div className='ms-n3'>
+                                            <RealtimeLineChart
+                                                data={serverUsage[itemLowerCase]}
+                                            />
+                                        </div>
+                                    </Card.Body>
+                                </Card>
+                            </div>
+                        )
+                    })}
+                </div>
                 <div className='row'>
                     <div className="col-12 mb-3">
                         <Card>
                             <Card.Body>
                                 <h4 className='mb-4'>Realtime Client Count</h4>
                                 <div className='realtime-client-count'>
-                                    <RealtimeLineChart subnetList={resource.subnets} />
+                                    <RealtimeLineChart data={networkStats.subnets} />
                                 </div>
                             </Card.Body>
                         </Card>
@@ -96,7 +145,7 @@ const Home: NextPage = () => {
                                 Shared Networks
                             </Card.Header>
                             <Card.Body>
-                                <SharedNetworkTable sharedNetworks={resource.sharedNetworks} />
+                                <SharedNetworkTable sharedNetworks={networkStats.sharedNetworks} />
                             </Card.Body>
                         </Card>
                     </div>
@@ -106,7 +155,7 @@ const Home: NextPage = () => {
                                 Subnets
                             </Card.Header>
                             <Card.Body>
-                                <SubnetTable subnet={resource.subnets} />
+                                <SubnetTable subnet={networkStats.subnets} />
                             </Card.Body>
                         </Card>
                     </div>
@@ -118,7 +167,7 @@ const Home: NextPage = () => {
                                 Vendor List Count
                             </Card.Header>
                             <Card.Body>
-                                <VendorTable vendor={resource.vendor} />
+                                <VendorTable vendor={networkStats.vendor} />
                             </Card.Body>
                         </Card>
                     </div>
@@ -128,7 +177,7 @@ const Home: NextPage = () => {
                                 Vendor Chart
                             </Card.Header>
                             <Card.Body>
-                                <VendorChart vendor={resource.vendor} />
+                                <VendorChart vendor={networkStats.vendor} />
                             </Card.Body>
                         </Card>
                     </div>

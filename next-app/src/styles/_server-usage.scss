@@ -1,0 +1,15 @@
+.server-usage{
+    &__card{
+        color: #fff;
+
+        &--cpu{
+            background-color: $orange-500;
+        }
+        &--memory{
+            background-color: $cyan-600;
+        }
+        &--disk{
+            background-color: $teal-600;
+        }
+    }
+}
