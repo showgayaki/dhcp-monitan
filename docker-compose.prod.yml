@@ -7,6 +7,7 @@ services:
       context: ./next-app
       dockerfile: prod.Dockerfile
       args:
+        ARCH: ${ARCH}
         NEXT_PUBLIC_NEXTAUTH_URL: ${NEXT_PUBLIC_NEXTAUTH_URL}
         NEXT_PUBLIC_USERNAME: ${NEXT_PUBLIC_USERNAME}
         NEXT_PUBLIC_PASSWORD: ${NEXT_PUBLIC_PASSWORD}

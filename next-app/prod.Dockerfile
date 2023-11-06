@@ -32,7 +32,7 @@ FROM base AS builder
 WORKDIR /app
 
 RUN apt-get update \
-&& apt-get -qq install -y --no-install-recommends dhcpd-pools \
+&& apt-get -qq install -y --no-install-recommends dhcpd-pools procps \
 && rm -rf /var/lib/apt/lists/*
 
 # Install dependencies based on the preferred package manager
@@ -63,7 +63,11 @@ RUN \
 # Step 2. Production image, copy all the files and run next
 FROM base AS runner
 
+ARG ARCH
 COPY --from=builder /usr/bin/dhcpd-pools /usr/bin/dhcpd-pools
+COPY --from=builder /usr/bin/vmstat /usr/bin/vmstat
+COPY --from=builder /usr/bin/free /usr/bin/free
+COPY --from=builder /usr/lib/${ARCH}-linux-gnu/libproc2.so.0 /usr/lib/${ARCH}-linux-gnu/libproc2.so.0
 
 WORKDIR /app
 
