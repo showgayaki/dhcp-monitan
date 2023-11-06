@@ -40,8 +40,8 @@ const diskUsage = (output: string) => {
     */
     const diskUsageArray = output.toString().split('\n')[1].split(/\s+/)
     // 数字部分だけ取り出す
-    const total = Number(diskUsageArray[1].replace(/[^0-9]/g, ''))
-    const usage = Number(diskUsageArray[2].replace(/[^0-9]/g, ''))
+    const total = parseFloat(diskUsageArray[1])
+    const usage = parseFloat(diskUsageArray[2])
 
     return { unit: 'GB', yMax: total, usage: usage }
 }
