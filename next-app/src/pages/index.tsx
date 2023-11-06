@@ -13,7 +13,7 @@ import {
     Tooltip,
 } from 'chart.js'
 import 'chartjs-adapter-date-fns'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef, useMemo } from 'react'
 import { AdminLayout } from '@layout'
 import { ServerUsage } from '@models/server-usage'
 import { Networks } from '@models/networks'
@@ -42,10 +42,16 @@ const Home: NextPage = () => {
     /*
      Server Usage
      */
-    const serverUsageList = ['CPU', 'Memory', 'Disk']
+    const serverUsageList = [
+        'CPU',
+        'Memory',
+        'Disk',
+    ]
+    const serverUsageChartRefList = useRef<Chart<'line'>[]>([])
+
     const serverUsageUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}server-usage` || ''
     const [usage, setUsage] = useState({})
-    const { data: { data: serverUsage }, isLoading: isServerUsageLoading, mutate: serverUsageMutate } = useSWRAxios<ServerUsage>({
+    const { data: { data: serverUsage }, isLoading: isServerUsageLoading } = useSWRAxios<ServerUsage>({
         url: serverUsageUrl,
         transformResponse: transformResponseWrapper((d: ServerUsage) => {
             console.log('ServerUsage:', d)
@@ -59,10 +65,29 @@ const Home: NextPage = () => {
         setUsage(serverUsage)
     }, [serverUsage])
 
+    const convertedList = useMemo(
+        // https://zenn.dev/tm35/articles/0a92a23b7a6afa
+        () =>
+        serverUsageList.map((value, index) => ({
+                id: index,
+                name: value,
+                refCallbackFunction: (node: Chart<'line'> | null) => {
+                    if (node !== null && serverUsageChartRefList.current[index] === undefined) {
+                        // node が null でなく、かつ、ref が未登録の場合
+                        serverUsageChartRefList.current[index] = node;
+                    } else {
+                        // node が null の場合は、対象の node を管理する必要がなくなるため削除
+                        delete serverUsageChartRefList.current[index];
+                    }
+                },
+            })),
+        [serverUsage]
+    )
 
     /*
      Networks
      */
+    const clientCountChartRef = useRef<Chart<'line'>>(null!)
     const networksUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}networks` || ''
     const [networks, setNetworks] = useState<Networks>(
         {
@@ -95,28 +120,48 @@ const Home: NextPage = () => {
     /*
      Rendering
      */
-    if(isServerUsageLoading || isNetworkLoading){
+    if (isServerUsageLoading || isNetworkLoading) {
         return (
             <AdminLayout>
             </AdminLayout>
         )
     }
-    else{
+    else {
+        if (clientCountChartRef.current !== null && clientCountChartRef.current !== undefined) {
+            clientCountChartRef.current.data.datasets.map((dataset, index) => {
+                dataset.data.push({
+                    x: Date.now(),
+                    y: networkStats.subnets[index].used,
+                })
+                clientCountChartRef.current.update('quiet')
+            })
+        }
+
         return (
             <AdminLayout>
                 <div className='row server-usage'>
-                    {serverUsageList.map((item, index) => {
-                        const itemLowerCase = item.toLowerCase()
+                    {convertedList.map((item, index) => {
+                        const itemLowerCase = item.name.toLowerCase()
                         const percentage = (serverUsage[itemLowerCase].usage / serverUsage[itemLowerCase].yMax) * 100
 
+                        if(serverUsageChartRefList.current[index] !== null && serverUsageChartRefList.current[index] !== undefined){
+                            serverUsageChartRefList.current[index].data.datasets.map((dataset, index) => {
+                                dataset.data.push({
+                                    x: Date.now(),
+                                    y: serverUsage[itemLowerCase].usage,
+                                })
+                                serverUsageChartRefList.current[index].update('quiet')
+                            })
+                        }
                         return (
-                            <div key={index} className={`col-md-${12 / serverUsageList.length} mb-3`}>
+                            <div key={index} className={`col-md-${12 / convertedList.length} mb-3`}>
                                 <Card className={`server-usage__card server-usage__card--${itemLowerCase}`}>
                                     <Card.Body>
-                                        <h4 className='mb-0'>{item}</h4>
+                                        <h4 className='mb-0'>{item.name}</h4>
                                         <small>{percentage.toFixed(1)}%</small>
                                         <div className='ms-n3'>
                                             <RealtimeLineChart
+                                                ref={item.refCallbackFunction}
                                                 data={serverUsage[itemLowerCase]}
                                             />
                                         </div>
@@ -132,7 +177,10 @@ const Home: NextPage = () => {
                             <Card.Body>
                                 <h4 className='mb-4'>Realtime Client Count</h4>
                                 <div className='realtime-client-count'>
-                                    <RealtimeLineChart data={networkStats.subnets} />
+                                    <RealtimeLineChart
+                                        ref={clientCountChartRef}
+                                        data={networkStats.subnets}
+                                    />
                                 </div>
                             </Card.Body>
                         </Card>

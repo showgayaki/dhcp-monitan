@@ -31,12 +31,15 @@ export default function useSWRAxios<T>(
 
     const fallbackData: AxiosResponse<T> = { ...initFallbackData, ...axiosFallbackData }
 
+    const interval = Number(process.env.NEXT_PUBLIC_API_RETRY_INTERVAL_IN_SECONDS) * 1000
     return useSWR(
         JSON.stringify(axiosRequest),
         () => axios.request<T>(axiosRequest),
         {
             fallbackData,
-            refreshInterval: Number(process.env.NEXT_PUBLIC_API_RETRY_INTERVAL_IN_SECONDS) * 1000,
+            refreshInterval: interval,
+            refreshWhenHidden: true,
+            dedupingInterval: interval,
             onErrorRetry: (error: AxiosError<T>, key, config, revalidate, { retryCount }) => {
                 // Never retry on 404.
                 if (error.response?.status === 404) return

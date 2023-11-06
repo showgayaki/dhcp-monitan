@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, forwardRef, ForwardedRef, MutableRefObject, useCallback } from 'react'
 import { Line } from 'react-chartjs-2'
+import { Chart } from 'chart.js'
 import { ja } from 'date-fns/locale'
 import { Usage } from '@models/server-usage'
 import { Subnet } from '@models/networks'
@@ -10,13 +11,15 @@ type Props = {
     data: Subnet[] | Usage;
 }
 
-export default function RealtimeLineChart(props: Props) {
+export default forwardRef(function RealtimeLineChart(props: Props, ref) {
+// export default function RealtimeLineChart(props: Props, ref) {
     const { data } = props
     const verifyDataType = (data: any): data is Subnet[] => {
         // Subnet[]型に強制キャストしてlengthプロパティがあればSubnet[]型とする
         return !!(data as Subnet[])?.length
     }
     const isSubnetList = verifyDataType(data)
+    const chartRef = ref as MutableRefObject<Chart<'line'>>
 
     const datasets = () => {
         if(isSubnetList){
@@ -61,6 +64,7 @@ export default function RealtimeLineChart(props: Props) {
 
     const chart = (
         <Line
+            ref={chartRef}
             data={{
                 datasets: datasets(),
             }}
@@ -81,28 +85,10 @@ export default function RealtimeLineChart(props: Props) {
                         },
                         realtime: {
                             duration: 50000,
-                            delay: 500,
-                            refresh: Number(process.env.NEXT_PUBLIC_API_RETRY_INTERVAL_IN_SECONDS) * 1000,
+                            delay: 300,
+                            refresh: undefined,
                             pause: false,
                             ttl: undefined,
-                            onRefresh: (chart) => {
-                                if(isSubnetList){
-                                    chart.data.datasets.map((dataset, index) => {
-                                        dataset.data.push({
-                                            x: Date.now(),
-                                            y: data[index].used,
-                                        })
-                                    })
-                                }else{
-                                    console.log('realtimechart:', data.usage)
-                                    chart.data.datasets.map((dataset, index) => {
-                                        dataset.data.push({
-                                            x: Date.now(),
-                                            y: data.usage,
-                                        })
-                                    })
-                                }
-                            },
                         },
                     },
                     y: {
@@ -150,6 +136,6 @@ export default function RealtimeLineChart(props: Props) {
         chart.props.options.radius = 0
     }
 
-    // return chart
     return useMemo(() => chart, [])
-}
+})
+// }

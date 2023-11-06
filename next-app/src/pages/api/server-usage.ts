@@ -11,12 +11,10 @@ const cpuUsage = (output: string) => {
     const yMax = 100
     // 3行目のindex: 14がCPUのアイドル値
     const cpuIdleValue = output.toString().split('\n')[2].trim().split(/\s+/)[14]
+    const usage = yMax - Number(cpuIdleValue)
+    // const usage = Number((Math.random() * 100).toFixed(1))
 
-    // const used = Number((Math.random() * 100).toFixed(1))
-    // console.log(used)
-    // return { unit: '%', yMax: yMax, usage: used }
-
-    return { unit: '%', yMax: yMax, usage: yMax - Number(cpuIdleValue) }
+    return { unit: '%', yMax: yMax, usage: usage }
 }
 
 const memoryUsage = (output: string) => {
@@ -27,8 +25,10 @@ const memoryUsage = (output: string) => {
     */
     const memoryUsageArray = output.toString().split('\n')[1].split(/\s+/)
     const total = Number(memoryUsageArray[1])
-    const used = Number(memoryUsageArray[2])
-    return { unit: 'MB', yMax: total, usage: used }
+    const usage = Number(memoryUsageArray[2])
+    // const usage = Number((Math.random() * 2500).toFixed(1))
+
+    return { unit: 'MB', yMax: total, usage: usage }
 }
 
 const diskUsage = (output: string) => {
@@ -41,8 +41,9 @@ const diskUsage = (output: string) => {
     const diskUsageArray = output.toString().split('\n')[1].split(/\s+/)
     // 数字部分だけ取り出す
     const total = Number(diskUsageArray[1].replace(/[^0-9]/g, ''))
-    const used = Number(diskUsageArray[2].replace(/[^0-9]/g, ''))
-    return { unit: 'GB', yMax: total, usage: used }
+    const usage = Number(diskUsageArray[2].replace(/[^0-9]/g, ''))
+
+    return { unit: 'GB', yMax: total, usage: usage }
 }
 
 
