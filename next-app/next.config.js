@@ -9,17 +9,22 @@ const pageList = (dir) => {
 
     // 再帰的に取得
     const files = []
-    for(const dirent of allDirents){
-        if(dirent.isDirectory()){
+    for (const dirent of allDirents) {
+        if (dirent.isDirectory()) {
             const fp = path.join(dir, dirent.name)
             files.push(pageList(fp))
-        }else if(dirent.isFile() && ['.ts', '.tsx'].includes(path.extname(dirent.name))){
+        } else if (dirent.isFile() && ['.ts', '.tsx'].includes(path.extname(dirent.name))) {
             const page = path.join(dir, dirent.name).replace('src/pages', '').split('.')[0]
-            if(page.includes('mock') || page.includes('_app') || page.includes('login') || page.includes('register')){
+            if (page.includes('mock') ||
+                page.includes('_app') ||
+                page.includes('_document') ||
+                page.includes('login') ||
+                page.includes('register')
+            ) {
                 ;
-            }else if(page.includes('index')){
+            } else if (page.includes('index')) {
                 files.push('/')
-            }else{
+            } else {
                 files.push(page)
             }
         }

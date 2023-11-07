@@ -52,8 +52,8 @@ function staticLeaseStartTime(ipAddress: string, macAddress: string){
 
     // RSYSLOG_TraditionalFileFormatの場合は、年が取れない(2001年になる)ので「月日 時間」にしておく
     const leaseDate = () => (leaseDateObject.getFullYear() === 2001)?
-        leaseDateObject.toLocaleString(process.env.NEXT_PUBLIC_API_LOCALE, {timeZone: process.env.NEXT_PUBLIC_API_TZ}).replace('2001/', ''):
-        leaseDateObject.toLocaleString(process.env.NEXT_PUBLIC_API_LOCALE, {timeZone: process.env.NEXT_PUBLIC_API_TZ})
+        leaseDateObject.toLocaleString(process.env.NEXT_PUBLIC_LOCALE, {timeZone: process.env.NEXT_PUBLIC_TZ}).replace('2001/', ''):
+        leaseDateObject.toLocaleString(process.env.NEXT_PUBLIC_LOCALE, {timeZone: process.env.NEXT_PUBLIC_TZ})
 
     return (Number.isNaN(leaseDateObject.getTime()))? 'N/A': leaseDate()
 }
@@ -96,7 +96,7 @@ function dynamicClientList(network_address: string, netmask: string, cidr: numbe
                 client.ip_address = ipAddress
             }else if(inRange){
                 if(/starts/.test(line)){
-                    client.start = new Date(datetime(line)).toLocaleString(process.env.NEXT_PUBLIC_API_LOCALE, {'timeZone': process.env.NEXT_PUBLIC_API_TZ})
+                    client.start = new Date(datetime(line)).toLocaleString(process.env.NEXT_PUBLIC_LOCALE, {'timeZone': process.env.NEXT_PUBLIC_TZ})
                     continue
                 }
                 if(/ends/.test(line)){
@@ -104,7 +104,7 @@ function dynamicClientList(network_address: string, netmask: string, cidr: numbe
                     // リース終了時間が未来かどうかでアクティブか判定する
                     const end = new Date(datetime(line))
                     if(now.getTime() < end.getTime()){
-                        client.end = new Date(end).toLocaleString(process.env.NEXT_PUBLIC_API_LOCALE, {'timeZone': process.env.NEXT_PUBLIC_API_TZ})
+                        client.end = new Date(end).toLocaleString(process.env.NEXT_PUBLIC_LOCALE, {'timeZone': process.env.NEXT_PUBLIC_TZ})
                         isActive = true
                     }else{
                         isActive = false
