@@ -7,11 +7,16 @@ $header-brand-color: #4f5d73;
     background: $header-background;
 
     .header-brand {
+        height: inherit;
         color: $header-brand-color;
+
+        &__image{
+            height: 100%;
+        }
     }
 
     .header-navbar {
-        min-height: 3rem;
+        height: 3rem;
 
         .header-toggler {
             color: $header-link-color;

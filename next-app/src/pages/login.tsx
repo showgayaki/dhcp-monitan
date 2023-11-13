@@ -5,7 +5,6 @@ import { faLock } from '@fortawesome/free-solid-svg-icons'
 import {
     Button, Col, Container, Form, InputGroup, Row,
 } from 'react-bootstrap'
-import Link from 'next/link'
 import { SyntheticEvent, useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import axios from 'axios'
@@ -80,6 +79,7 @@ const Login: NextPage = () => {
                                     </InputGroup.Text>
                                     <Form.Control
                                         ref={inputElement}
+                                        type="email"
                                         name="username"
                                         required
                                         disabled={submitting}

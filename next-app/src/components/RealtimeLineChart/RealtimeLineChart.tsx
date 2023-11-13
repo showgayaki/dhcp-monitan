@@ -1,4 +1,4 @@
-import React, { useMemo, forwardRef, ForwardedRef, MutableRefObject, useCallback } from 'react'
+import React, { useMemo, forwardRef, MutableRefObject } from 'react'
 import { Line } from 'react-chartjs-2'
 import { Chart } from 'chart.js'
 import { ja } from 'date-fns/locale'
@@ -12,7 +12,6 @@ type Props = {
 }
 
 export default forwardRef(function RealtimeLineChart(props: Props, ref) {
-// export default function RealtimeLineChart(props: Props, ref) {
     const { data } = props
     const verifyDataType = (data: any): data is Subnet[] => {
         // Subnet[]型に強制キャストしてlengthプロパティがあればSubnet[]型とする
@@ -138,4 +137,3 @@ export default forwardRef(function RealtimeLineChart(props: Props, ref) {
 
     return useMemo(() => chart, [])
 })
-// }

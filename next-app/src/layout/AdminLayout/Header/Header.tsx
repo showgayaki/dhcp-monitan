@@ -31,7 +31,7 @@ export default function Header(props: HeaderProps) {
                     <FontAwesomeIcon icon={faBars} />
                 </Button>
                 <Link href="/" className="header-brand d-md-none">
-                    <img className='w-25' src="/assets/brand/monitan--inversion.png" alt="" />
+                    <img className='header-brand__image' src="/assets/brand/monitan--inversion.png" alt="" />
                 </Link>
             </Container>
         </header>
