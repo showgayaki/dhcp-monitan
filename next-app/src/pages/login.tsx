@@ -79,7 +79,6 @@ const Login: NextPage = () => {
                                     </InputGroup.Text>
                                     <Form.Control
                                         ref={inputElement}
-                                        type="email"
                                         name="username"
                                         required
                                         disabled={submitting}
