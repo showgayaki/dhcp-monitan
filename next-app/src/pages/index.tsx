@@ -158,7 +158,11 @@ const Home: NextPage = () => {
                                 <Card className={`server-usage__card server-usage__card--${itemLowerCase}`}>
                                     <Card.Body>
                                         <h4 className='mb-0'>{item.name}</h4>
-                                        <small>{percentage.toFixed(1)}%</small>
+                                        <small>{
+                                            (item.name == 'CPU')?
+                                            `${percentage.toFixed(1)}%`:
+                                            `${serverUsage[itemLowerCase].usage} ${serverUsage[itemLowerCase].unit}(${percentage.toFixed(1)}%)`
+                                        }</small>
                                         <div className='ms-n3'>
                                             <RealtimeLineChart
                                                 ref={item.refCallbackFunction}
