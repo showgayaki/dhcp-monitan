@@ -6,7 +6,7 @@ import {
     Button, Col, Container, Form, InputGroup, Row,
 } from 'react-bootstrap'
 import { SyntheticEvent, useState, useRef, useEffect } from 'react'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import { deleteCookie, getCookie } from 'cookies-next'
 import { AutoHideToast } from '@components/Toast'
