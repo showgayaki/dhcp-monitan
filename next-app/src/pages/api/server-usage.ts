@@ -10,7 +10,7 @@ const cpuUsage = (output: string) => {
     */
     const yMax = 100
     // 3行目のindex: 14がCPUのアイドル値
-    const cpuIdleValue = output.toString().split('\n')[2].trim().split(/\s+/)[14]
+    const cpuIdleValue = output.split('\n')[2].trim().split(/\s+/)[14]
     const usage = yMax - Number(cpuIdleValue)
     // const usage = Number((Math.random() * 100).toFixed(1))
 
@@ -23,7 +23,7 @@ const memoryUsage = (output: string) => {
     Mem:            4933        2252         418         136        2665        2681
     Swap:           1023         411         612
     */
-    const memoryUsageArray = output.toString().split('\n')[1].split(/\s+/)
+    const memoryUsageArray = output.split('\n')[1].split(/\s+/)
     const total = Number(memoryUsageArray[1])
     const usage = Number(memoryUsageArray[2])
     // const usage = Number((Math.random() * 2500).toFixed(1))
@@ -38,7 +38,7 @@ const diskUsage = (output: string) => {
     tmpfs                        64M     0   64M   0% /dev
     ...
     */
-    const diskUsageArray = output.toString().split('\n')[1].split(/\s+/)
+    const diskUsageArray = output.split('\n')[1].split(/\s+/)
     // 数字部分だけ取り出す
     const total = parseFloat(diskUsageArray[1])
     const usage = parseFloat(diskUsageArray[2])

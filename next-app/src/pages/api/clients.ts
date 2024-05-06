@@ -188,6 +188,10 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
         for(let j = 0; j < linesLength; j += 1){
             const line = lines[j].trim().replace(';', '')
+            // コメントと空白行は飛ばす
+            if(line[0] == '#' || line[0] == undefined){
+                continue
+            }
 
             if(/netmask/.test(line)){
                 client.network_address = line.split(' ')[0]
